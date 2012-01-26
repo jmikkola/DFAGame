@@ -134,6 +134,19 @@ def loadGraph(filename):
         j = json.load(inf)
     return Graph(serialized=j)
 
+def playGame(graph):
+    # TODO: add a method for getting the start state
+    state = graph.getState(0)
+    while not state.hasAttrib('final'):
+        print state.text, "\n"
+        options = state.listTransitions()
+        for i,option in enumerate(options):
+            print "\t%2d> %s" % (i+1, option)
+        choice = int(raw_input('Select an option: ')) - 1
+        state = state.getTransition(options[choice])
+        print ""
+    print "end of game"
+
 if __name__ == '__main__':
     g = Graph()
     sn1 = g.addState('first state')
@@ -146,11 +159,7 @@ if __name__ == '__main__':
     g.addTransition(sn2, sn1, 'go down')
     g.addTransition(sn2, sn3, 'continue')
     g.addTransition(sn3, sn1, 'back')
-    s = g.toSerializable()
-    print json.dumps(s, indent=2)
-    print "\n\n"
-    g2 = Graph(s)
-    bs2 = g2.getState(1)
-    #g2.removeState(bs2)
-    g2.removeTransition(bs2, 'go down')
-    print json.dumps(g2.toSerializable(), indent=2)
+    #s = g.toSerializable()
+    #print json.dumps(s, indent=2)
+    playGame(g)
+    
