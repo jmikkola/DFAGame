@@ -2,15 +2,14 @@
 class State:
     ''' This class represents a single state
     and its transitions '''
-    def __init__(self, number, text):
-        self.number = number
+    def __init__(self, text, transitions=None):
         self.text = text
-        self.transitions = dict()
+        self.transitions = transitions if transitions else dict()
 
     def addTransition(self, command, state):
         ''' Adds a transition to State object in
         state with the command text from command '''
-        self.transitions[command] = state.number
+        self.transitions[command] = state
 
     def getTransition(self, command):
         ''' Returns the transition taken from
@@ -25,48 +24,55 @@ class State:
         ''' Removes a transition with the given command '''
         del self.transitions[command]
 
-    def removeConnections(self, stateNo):
-        ''' Removes all transition to a given state number '''
-        for cmd, n in self.transitions:
-            if n == stateNo:
+    def removeConnections(self, state):
+        ''' Removes all transition to a given state '''
+        for cmd, s in self.transitions:
+            if s == state:
                 del self.transitions[cmd]
 
+    def __str__(self):
+        s = self.text + " : {"
+        for k,v in self.transitions.iteritems():
+            s += repr(k) + ": " + repr(v.text) + ", "
+        return s + "}"
+
 class Graph:
-    ''' This class stores an entire transion graph made
+    ''' This class stores an entire transition graph made
     out of State objects.'''
     def __init__(self):
-        self.states = dict()
-        self._noIssued = 0
+        self.states = []
         
     def addState(self, text):
         ''' Adds a State object with the given text to the 
-        graph, and returns the state number at which it is stored '''
-        stateNo = self._noIssued
-        self._noIssued += 1
-        self.states[stateNo] = State(stateNo, text)
-        return stateNo
+        graph, and returns the new state object '''
+        state = State(text)
+        self.states.append(state)
+        return state
 
-    def removeState(self, num):
-        ''' Removes a state (by number) from the graph '''
-        del self.state[num]
-        for n, state in self.states.iteritems():
-            state.removeConnections(num)
+    def removeState(self, state):
+        ''' Removes a state from the graph '''
+        del self.states[self.states.index(state)]
+        for s in self.states:
+            state.removeConnections(s)
 
-    def addTransition(self, state1, state2, command):
-        ''' Adds a transition from the state with number 
-        state1 to the state with number state2 '''
-        s1 = self.states[state1]
-        s2 = self.states[state2]
-        s1.addTransition(command, s2)
+    def addTransition(self, start, end, command):
+        ''' Adds a transition from the start state to the
+        end state on the given command '''
+        start.addTransition(command, end)
         
-    def removeTransition(self, state1, command):
-        ''' Removes a transition starting at state1 with
+    def removeTransition(self, start, command):
+        ''' Removes a transition starting at start with
         the given command '''
-        s1 = self.states[state1]
-        s1.removeTransition(command)
+        start.removeTransition(command)
+
+    def toSerializable(self):
+        numbers = dict((v,i) for (i,v) in enumerate(self.states))
+        return numbers
+        
         
 
 if __name__ == '__main__':
+    import json
     g = Graph()
     sn1 = g.addState('first state')
     sn2 = g.addState('another state')
@@ -74,4 +80,8 @@ if __name__ == '__main__':
     g.addTransition(sn1, sn2, 'go up')
     g.addTransition(sn1, sn3, 'pass')
     g.addTransition(sn2, sn1, 'go down')
+    g.addTransition(sn2, sn3, 'continue')
     g.addTransition(sn3, sn1, 'back')
+    s = g.toSerializable()
+    for k,v in s.iteritems():
+        print v, str(k)
