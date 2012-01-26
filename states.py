@@ -3,9 +3,22 @@ import json
 class State:
     ''' This class represents a single state
     and its transitions '''
-    def __init__(self, text, transitions=None):
+    def __init__(self, text, transitions=None, attribs=None):
         self.text = text
         self.transitions = transitions if transitions else dict()
+        self.attribs = set(attribs) if attribs else set()
+
+    def hasAttrib(self, attr):
+        ''' Checks if this state has the attribute '''
+        return attr in self.attribs
+
+    def addAttrib(self, attrib):
+        ''' Adds the attribute to the state '''
+        self.attribs.add(attrib)
+
+    def removeAttrib(self, attrib):
+        ''' Removes the attribute from the state '''
+        self.attribs.remove(attrib)
 
     def addTransition(self, command, state):
         ''' Adds a transition to State object in
@@ -33,7 +46,6 @@ class State:
         for cmd in toRemove:
             del self.transitions[cmd]
                 
-
     def __str__(self):
         s = self.text + " : {"
         for k,v in self.transitions.iteritems():
@@ -52,7 +64,8 @@ class Graph:
         ''' Reads in the graph from a serialized format '''
         for i,v in serialized.iteritems():
             assert(i == len(self.states))
-            self.states.append(State(v['state']))
+            state = State(v['state'], attribs=v['attribs'])
+            self.states.append(state)
         for i,v in serialized.iteritems():
             start = self.states[i]
             transitions = v['transitions']
@@ -104,7 +117,9 @@ class Graph:
         for i,v in enumerate(self.states):
             trns = dict((cmd,numbers[st]) for (cmd,st) \
                             in v.transitions.iteritems())
-            out[i] = {'state': v.text, 'transitions': trns} 
+            out[i] = {'state': v.text, 
+                      'transitions': trns,
+                      'attribs': list(v.attribs)} 
         return out
         
 
@@ -122,8 +137,10 @@ def loadGraph(filename):
 if __name__ == '__main__':
     g = Graph()
     sn1 = g.addState('first state')
+    sn1.addAttrib('start')
     sn2 = g.addState('another state')
     sn3 = g.addState('third state')
+    sn3.addAttrib('final')
     g.addTransition(sn1, sn2, 'go up')
     g.addTransition(sn1, sn3, 'pass')
     g.addTransition(sn2, sn1, 'go down')
