@@ -39,8 +39,22 @@ class State:
 class Graph:
     ''' This class stores an entire transition graph made
     out of State objects.'''
-    def __init__(self):
+    def __init__(self, serialized=None):
         self.states = []
+        if serialized:
+            self._readSerialized(serialized)
+
+    def _readSerialized(self, serialized):
+        ''' Reads in the graph from a serialized format '''
+        for i,v in serialized.iteritems():
+            assert(i == len(self.states))
+            self.states.append(State(v['state']))
+        for i,v in serialized.iteritems():
+            start = self.states[i]
+            transitions = v['transitions']
+            for cmd,j in transitions.iteritems():
+                end = self.states[j]
+                self.addTransition(start, end, cmd)
         
     def addState(self, text):
         ''' Adds a State object with the given text to the 
@@ -88,3 +102,5 @@ if __name__ == '__main__':
     g.addTransition(sn3, sn1, 'back')
     s = g.toSerializable()
     print json.dumps(s, indent=2)
+    g2 = Graph(s)
+    print json.dumps(g2.toSerializable(), indent=2)
