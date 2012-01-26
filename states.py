@@ -26,9 +26,12 @@ class State:
 
     def removeConnections(self, state):
         ''' Removes all transition to a given state '''
-        for cmd, s in self.transitions:
-            if s == state:
-                del self.transitions[cmd]
+        toRemove = []
+        for cmd, s in self.transitions.iteritems():
+            if s == state: toRemove.append(cmd)
+        for cmd in toRemove:
+            del self.transitions[cmd]
+                
 
     def __str__(self):
         s = self.text + " : {"
@@ -55,6 +58,19 @@ class Graph:
             for cmd,j in transitions.iteritems():
                 end = self.states[j]
                 self.addTransition(start, end, cmd)
+
+    def numStates(self):
+        ''' Returns the number of states '''
+        return len(self.states)
+
+    def getState(self, index):
+        ''' Gets the state at the given index '''
+        assert(index >= 0 and index < self.numStates())
+        return self.states[index]
+
+    def getIndex(self, state):
+        ''' Returns the index of the state '''
+        return self.states.index(state)
         
     def addState(self, text):
         ''' Adds a State object with the given text to the 
@@ -65,9 +81,9 @@ class Graph:
 
     def removeState(self, state):
         ''' Removes a state from the graph '''
-        del self.states[self.states.index(state)]
+        del self.states[self.getIndex(state)]
         for s in self.states:
-            state.removeConnections(s)
+            s.removeConnections(state)
 
     def addTransition(self, start, end, command):
         ''' Adds a transition from the start state to the
@@ -80,6 +96,8 @@ class Graph:
         start.removeTransition(command)
 
     def toSerializable(self):
+        ''' Converts graph into a format that can be
+        serialized into JSON '''
         numbers = dict((v,i) for (i,v) in enumerate(self.states))
         out = dict()
         for i,v in enumerate(self.states):
@@ -102,5 +120,9 @@ if __name__ == '__main__':
     g.addTransition(sn3, sn1, 'back')
     s = g.toSerializable()
     print json.dumps(s, indent=2)
+    print "\n\n"
     g2 = Graph(s)
+    bs2 = g2.getState(1)
+    #g2.removeState(bs2)
+    g2.removeTransition(bs2, 'go down')
     print json.dumps(g2.toSerializable(), indent=2)
