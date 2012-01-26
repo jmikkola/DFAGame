@@ -67,8 +67,12 @@ class Graph:
 
     def toSerializable(self):
         numbers = dict((v,i) for (i,v) in enumerate(self.states))
-        return numbers
-        
+        out = dict()
+        for i,v in enumerate(self.states):
+            trns = dict((cmd,numbers[st]) for (cmd,st) \
+                            in v.transitions.iteritems())
+            out[i] = {'state': v.text, 'transitions': trns} 
+        return out
         
 
 if __name__ == '__main__':
@@ -83,5 +87,4 @@ if __name__ == '__main__':
     g.addTransition(sn2, sn3, 'continue')
     g.addTransition(sn3, sn1, 'back')
     s = g.toSerializable()
-    for k,v in s.iteritems():
-        print v, str(k)
+    print json.dumps(s, indent=2)
