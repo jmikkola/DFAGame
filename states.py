@@ -1,3 +1,4 @@
+import json
 
 class State:
     ''' This class represents a single state
@@ -107,8 +108,18 @@ class Graph:
         return out
         
 
+def saveGraph(graph, filename):
+    ''' Saves the graph to the given file name '''
+    with open(filename, 'w') as outf:
+        json.dump(graph.toSerializable(), outf)
+
+def loadGraph(filename):
+    ''' Loads a graph from a file '''
+    with open(filename) as inf:
+        j = json.load(inf)
+    return Graph(serialized=j)
+
 if __name__ == '__main__':
-    import json
     g = Graph()
     sn1 = g.addState('first state')
     sn2 = g.addState('another state')
