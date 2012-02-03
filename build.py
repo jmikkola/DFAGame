@@ -3,6 +3,7 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
+import gobject
 
 from states import *
 
@@ -66,45 +67,97 @@ class BuilderWindow:
 
     def _makeRightPane(self):
         ''' Creates the VBox holding the right pane '''
+        # Setup
         vb = gtk.VBox(False, 5)
         vb.set_border_width(5)
         vb.set_size_request(300, -1)
-        # State select & text
+        # Content - State selection
         vb.pack_start(self._makeStateSelection(), False, False)
+        vb.pack_start(gtk.HSeparator())
+        # Content - State text
+        vb.pack_start(leftLabel('State text:'))
         vb.pack_start(self._makeStateText(), False, False)
-        # Transitions
-        frame = gtk.Frame('Transitions')
-        trScroll = gtk.ScrolledWindow()
-        trScroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        frame.add(trScroll)
-        vb.pack_start(frame, False, False)
-        # Return pane
+        vb.pack_start(gtk.HSeparator())
+        # Content - Transitions
+        vb.pack_start(leftLabel('Transitions:'))
+        vb.pack_start(self._makeAddTransition(), False, False)
+        vb.pack_start(self._makeTransitionList(), False, False)
+        # Store
         self.rightPane = vb
         return vb
 
     def _makeStateSelection(self):
         ''' Creates selection box for states '''
         hb = gtk.HBox(False, 0)
-        stateLabel = gtk.Label('State: ')
+        stateLabel = leftLabel('State: ')
         hb.pack_start(stateLabel)
-        stateCombo = gtk.Combo()
+        stateCombo = gtk.ComboBox()
         hb.pack_start(stateCombo)
         self.stateCombo = stateCombo
         return hb
 
     def _makeStateText(self):
         ''' Creates box for entering a state's text '''
-        buff = gtk.TextBuffer()
-        text = gtk.TextView(buff)
+        # Text box
+        text = gtk.TextView()
         text.set_cursor_visible(True)
         text.set_wrap_mode(gtk.WRAP_CHAR)
+        # Scrolled window
         scroll = gtk.ScrolledWindow()
         scroll.add(text)
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
         scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
-        self.stateTextBuffer = buff
+        # Store
+        self.stateTextBuffer = text.get_buffer()
         self.stateText = text
         return scroll
+
+    def _makeAddTransition(self):
+        ''' Creates the inputs to add a transition '''
+        vb = gtk.VBox(False, 0)
+        entry = gtk.Entry(max = 100)
+        vb.pack_start(entry)
+        hb = gtk.HBox(False, 0)
+        hb.pack_start(leftLabel('to'), False, False, 5)
+        combo = gtk.ComboBox()
+        hb.pack_start(combo, False, False, 5)
+        btn = gtk.Button('add')
+        hb.pack_start(btn, False, False, 5)
+        vb.pack_start(hb)
+        self.trEntry = entry
+        self.trCombo = combo
+        self.trAdd = btn
+        return vb
+
+    def _makeTransitionList(self):
+        ''' Creates a scroll pane containing the list of 
+        transitions '''
+        # Scrolled Window
+        scroll = gtk.ScrolledWindow()
+        scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        
+        # Tree view for listing items
+        self.trList = gtk.ListStore(int, str, gtk.Button)
+        self.setTransitionItems([(12, 'transition'), (0, 'restart')])
+        treeview = gtk.TreeView(self.trList)
+
+        tvCol1 = gtk.TreeViewColumn()
+        treeview.append_column(tvCol1)
+        cell1 = gtk.CellRendererText()
+        tvCol1.pack_start(cell1, True)
+        tvCol1.add_attribute(cell1, 'text', 0)
+
+        scroll.add(treeview)
+        return scroll
+
+    def setTransitionItems(self, items):
+        ''' Creates an element in the list of 
+        transitions '''
+        self.trList.clear()
+        for (n, s) in items:
+            row = (n, s, gtk.Button('-'))
+            self.trList.append(row)
 
     def setTitle(self, fileName=None):
         ''' Sets the title of the window '''
@@ -121,6 +174,12 @@ class BuilderWindow:
 
     def main(self):
         gtk.main()
+
+
+def leftLabel(text):
+    label = gtk.Label(text)
+    label.set_alignment(0, 0.5)
+    return label
 
 if __name__ == '__main__':
     builder = BuilderWindow()
