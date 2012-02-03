@@ -24,7 +24,7 @@ class BuilderWindow:
         # Set content
         vb = gtk.VBox(False, 0)
         vb.pack_start(self._makeMenuBar(), False, False)
-        vb.pack_start(self._makeToolBar(), False, False)
+        #vb.pack_start(self._makeToolBar(), False, False)
         vb.pack_start(self._makeLayout(), False, False)
         w.add(vb)
         # Return the window
@@ -35,8 +35,16 @@ class BuilderWindow:
     def _makeMenuBar(self):
         ''' Create the menu bar '''
         menu = gtk.MenuBar()
-        item = gtk.MenuItem('File')
-        menu.add(item)
+        mFile = gtk.MenuItem('File')
+        muFile = gtk.Menu()
+        mFile.set_submenu(muFile)
+        mFileQuit = gtk.MenuItem('Quit')
+        muFile.add(mFileQuit)
+        menu.add(mFile)
+        mEdit = gtk.MenuItem('Edit')
+        menu.add(mEdit)
+        mPlay = gtk.MenuItem('Play')
+        menu.add(mPlay)
         self.menuBar = menu
         return menu
 
@@ -102,6 +110,7 @@ class BuilderWindow:
         text = gtk.TextView()
         text.set_cursor_visible(True)
         text.set_wrap_mode(gtk.WRAP_CHAR)
+        text.set_size_request(0, 100)
         # Scrolled window
         scroll = gtk.ScrolledWindow()
         scroll.add(text)
@@ -136,19 +145,11 @@ class BuilderWindow:
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
-        
-        # Tree view for listing items
-        self.trList = gtk.ListStore(int, str, gtk.Button)
-        self.setTransitionItems([(12, 'transition'), (0, 'restart')])
-        treeview = gtk.TreeView(self.trList)
-
-        tvCol1 = gtk.TreeViewColumn()
-        treeview.append_column(tvCol1)
-        cell1 = gtk.CellRendererText()
-        tvCol1.pack_start(cell1, True)
-        tvCol1.add_attribute(cell1, 'text', 0)
-
-        scroll.add(treeview)
+        #scroll.set_size_request(0, 100)
+        # List of transitions
+        vb = gtk.VBox(False, 0)
+        scroll.add_with_viewport(vb)
+        self.trList = vb
         return scroll
 
     def setTransitionItems(self, items):
