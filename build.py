@@ -36,6 +36,16 @@ class WindowMenu(gtk.MenuBar):
         mi.set_submenu(menu)
         self.add(mi)
         return mi
+
+class GraphPane(gtk.DrawingArea):
+    def __init__(self):
+        gtk.DrawingArea.__init__(self)
+        self.connect('expose-event', self.draw_graph)
+
+    def draw_graph(self, area, event):
+        gc = self.get_style().fg_gc[gtk.STATE_NORMAL]
+        self.window.draw_rectangle(gc, True, 100, 100, 200, 200)
+        return True
                 
 
 class BuilderWindow:
@@ -60,18 +70,11 @@ class BuilderWindow:
     def makeLayout(self):
         ''' Creates the HBox within the window '''
         hb = gtk.HBox(False, 0)
-        hb.pack_start(self._makeLeftPane())
+        self.graphPane = GraphPane()
+        hb.pack_start(self.graphPane)
         hb.pack_start(self._makeRightPane(), False)
         self.hb = hb
         return hb
-
-    def _makeLeftPane(self):
-        ''' Creates the VBox holding the left pane '''
-        drawing = gtk.DrawingArea()
-        drawing.set_size_request(400, 400)
-        drawing.connect('expose-event', self.draw_graph)
-        self.graphPane = drawing
-        return drawing
 
     def _makeRightPane(self):
         ''' Creates the VBox holding the right pane '''
@@ -166,12 +169,6 @@ class BuilderWindow:
         if fileName:
             title = fileName + ' - ' + title
         self.window.set_title(title)
-
-    def draw_graph(self, area, event):
-        style = self.graphPane.get_style()
-        gc = style.fg_gc[gtk.STATE_NORMAL]
-        self.graphPane.window.draw_rectangle(gc, True, 100, 100, 200, 200)
-        return True
 
     def delete_event(self, widget, event, data=None):
         return False
