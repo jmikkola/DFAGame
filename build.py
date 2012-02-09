@@ -40,12 +40,18 @@ class WindowMenu(gtk.MenuBar):
 class GraphPane(gtk.DrawingArea):
     def __init__(self):
         gtk.DrawingArea.__init__(self)
+        self.points = []
         self.connect('expose-event', self.draw_graph)
 
     def draw_graph(self, area, event):
         gc = self.get_style().fg_gc[gtk.STATE_NORMAL]
-        self.window.draw_rectangle(gc, True, 100, 100, 200, 200)
+        for (x, y) in self.points:
+            self.window.draw_rectangle(gc, True, x, y, 10, 10)
         return True
+
+    def update(self, points):
+        self.points = points
+        self.queue_draw()
                 
 
 class BuilderWindow:
