@@ -91,10 +91,10 @@ class Graph:
         ''' Returns the index of the state '''
         return self.states.index(state)
         
-    def addState(self, text):
+    def addState(self, text, attributes=None):
         ''' Adds a State object with the given text to the 
         graph, and returns the new state object '''
-        state = State(text)
+        state = State(text, attributes=attributes)
         self.states.append(state)
         return state
 

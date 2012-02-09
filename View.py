@@ -9,8 +9,9 @@ from Controller import *
 from Model import *
 
 class WindowMenu(gtk.MenuBar):
-    def __init__(self):
+    def __init__(self, controller):
         gtk.MenuBar.__init__(self)
+        self.controller = controller
         self.fileMenu = self.makeFileMenu()
         self.editMenu = self.makeEditMenu()
         self.playMenu = self.makePlayMenu()
@@ -39,24 +40,33 @@ class WindowMenu(gtk.MenuBar):
         return mi
 
 class GraphPane(gtk.DrawingArea):
-    def __init__(self):
+    def __init__(self, controller):
         gtk.DrawingArea.__init__(self)
+        self.controller = controller
         self.points = []
         self.connect('expose-event', self.draw_graph)
 
     def draw_graph(self, area, event):
+        graph = self.controller.graph
         gc = self.get_style().fg_gc[gtk.STATE_NORMAL]
-        for (x, y) in self.points:
-            self.window.draw_rectangle(gc, True, x, y, 10, 10)
+        npoints = graph.numStates()
+        indexes = self.getIndexes(npoints)
+        for i in xrange(npoints):
+            x, y = indexes[i]
+            self.window.draw_rectangle(gc, True, 20 + x*10, 20 + y*10, 10, 10)
         return True
 
     def update(self, points):
         self.points = points
         self.queue_draw()
 
+    def getIndexes(self, npoints):
+        return [(i/10, i%10) for i in xrange(npoints)]
+
 class StatePane(gtk.VBox):
-    def __init__(self):
+    def __init__(self, controller):
         gtk.VBox.__init__(self, False, 5)
+        self.controller = controller
         self.set_border_width(5)
         self.set_size_request(300, -1)
         self.addStateSelection()
@@ -145,15 +155,15 @@ class BuilderWindow:
     def setContent(self):
         vb = gtk.VBox(False, 0)
         # Menu bar
-        self.menuBar = WindowMenu()
+        self.menuBar = WindowMenu(self.controller)
         vb.pack_start(self.menuBar, False, False)
         # Main content
         hb = gtk.HBox(False, 0)
         # Left side
-        self.graphPane = GraphPane()
+        self.graphPane = GraphPane(self.controller)
         hb.pack_start(self.graphPane)
         # Right side
-        self.statePane = StatePane()
+        self.statePane = StatePane(self.controller)
         hb.pack_start(self.statePane, False)
         # Setup
         vb.pack_start(hb, False, False)
@@ -177,8 +187,11 @@ def leftLabel(text):
     return label
 
 def main():
+    ''' This method starts the program '''
+    # TODO: parse any args here
     controller = Controller()
     builder = BuilderWindow(controller)
+    # Transfer control to GTK event loop
     gtk.main()
 
 if __name__ == '__main__':
