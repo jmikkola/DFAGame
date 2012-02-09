@@ -6,48 +6,58 @@ import gtk
 import gobject
 
 from states import *
-        
+
+class WindowMenu(gtk.MenuBar):
+    def __init__(self):
+        gtk.MenuBar.__init__(self)
+        self.fileMenu = self.makeFileMenu()
+        self.editMenu = self.makeEditMenu()
+        self.playMenu = self.makePlayMenu()
+
+    def makeFileMenu(self):
+        mi = gtk.MenuItem('File')
+        menu = gtk.Menu()
+        miQuit = gtk.MenuItem('Quit')
+        menu.add(miQuit)
+        mi.set_submenu(menu)
+        self.add(mi)
+        return mi
+
+    def makeEditMenu(self):
+        mi = gtk.MenuItem('Edit')
+        menu = gtk.Menu()
+        mi.set_submenu(menu)
+        self.add(mi)
+        return mi
+
+    def makePlayMenu(self):
+        mi = gtk.MenuItem('Play')
+        menu = gtk.Menu()
+        mi.set_submenu(menu)
+        self.add(mi)
+        return mi
+                
 
 class BuilderWindow:
     def __init__(self):
         ''' Set up the window '''
-        window = self._makeWindow()
-        window.show_all()
-
-    def _makeWindow(self):
-        ''' Creates the window object '''
         # Create window
         w = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window = w
         w.connect('delete_event', self.delete_event)
         w.connect('destroy', self.destroy)
         w.set_default_size(800,600)
         # Set content
         vb = gtk.VBox(False, 0)
-        vb.pack_start(self._makeMenuBar(), False, False)
-        vb.pack_start(self._makeLayout(), False, False)
+        self.menuBar = WindowMenu()
+        vb.pack_start(self.menuBar, False, False)
+        vb.pack_start(self.makeLayout(), False, False)
         w.add(vb)
-        # Return the window
-        self.window = w
         self.setTitle()
-        return w
+        # Show the window
+        w.show_all()
 
-    def _makeMenuBar(self):
-        ''' Create the menu bar '''
-        menu = gtk.MenuBar()
-        mFile = gtk.MenuItem('File')
-        muFile = gtk.Menu()
-        mFile.set_submenu(muFile)
-        mFileQuit = gtk.MenuItem('Quit')
-        muFile.add(mFileQuit)
-        menu.add(mFile)
-        mEdit = gtk.MenuItem('Edit')
-        menu.add(mEdit)
-        mPlay = gtk.MenuItem('Play')
-        menu.add(mPlay)
-        self.menuBar = menu
-        return menu
-
-    def _makeLayout(self):
+    def makeLayout(self):
         ''' Creates the HBox within the window '''
         hb = gtk.HBox(False, 0)
         hb.pack_start(self._makeLeftPane())
