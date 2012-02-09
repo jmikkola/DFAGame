@@ -1,24 +1,29 @@
+#!/usr/bin/env python
+
 import json
 
 class State:
     ''' This class represents a single state
     and its transitions '''
-    def __init__(self, text, transitions=None, attribs=None):
+    def __init__(self, text, transitions=None, attributes=None):
         self.text = text
         self.transitions = transitions if transitions else dict()
-        self.attribs = set(attribs) if attribs else set()
+        self.attributes = attributes if attributes else dict()
 
-    def hasAttrib(self, attr):
-        ''' Checks if this state has the attribute '''
-        return attr in self.attribs
+    def getAttribute(self, key):
+        ''' Returns the value of the attribute '''
+        if key in self.attributes:
+            return self.attributes[key]
+        return None
 
-    def addAttrib(self, attrib):
-        ''' Adds the attribute to the state '''
-        self.attribs.add(attrib)
+    def addAttribute(self, key, value):
+        ''' Sets the value of the attribute '''
+        self.attributes[key] = value
 
-    def removeAttrib(self, attrib):
+    def removeAttribute(self, key):
         ''' Removes the attribute from the state '''
-        self.attribs.remove(attrib)
+        if key in self.attributes:
+            del self.attributes[key]
 
     def addTransition(self, command, state):
         ''' Adds a transition to State object in
@@ -64,7 +69,7 @@ class Graph:
         ''' Reads in the graph from a serialized format '''
         for i,v in serialized.iteritems():
             assert(i == len(self.states))
-            state = State(v['state'], attribs=v['attribs'])
+            state = State(v['state'], attributes=v['attributes'])
             self.states.append(state)
         for i,v in serialized.iteritems():
             start = self.states[i]
@@ -119,7 +124,7 @@ class Graph:
                             in v.transitions.iteritems())
             out[i] = {'state': v.text, 
                       'transitions': trns,
-                      'attribs': list(v.attribs)} 
+                      'attributes': v.attributes} 
         return out
         
 
@@ -137,7 +142,7 @@ def loadGraph(filename):
 def playGame(graph):
     # TODO: add a method for getting the start state
     state = graph.getState(0)
-    while not state.hasAttrib('final'):
+    while not state.getAttribute('final'):
         print state.text, "\n"
         options = state.listTransitions()
         for i,option in enumerate(options):
@@ -150,10 +155,10 @@ def playGame(graph):
 if __name__ == '__main__':
     g = Graph()
     sn1 = g.addState('first state')
-    sn1.addAttrib('start')
+    sn1.addAttribute('start', True)
     sn2 = g.addState('another state')
     sn3 = g.addState('third state')
-    sn3.addAttrib('final')
+    sn3.addAttribute('final', True)
     g.addTransition(sn1, sn2, 'go up')
     g.addTransition(sn1, sn3, 'pass')
     g.addTransition(sn2, sn1, 'go down')
