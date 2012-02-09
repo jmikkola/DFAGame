@@ -6,7 +6,7 @@ import gtk
 import gobject
 
 from Controller import *
-from states import *
+from Model import *
 
 class WindowMenu(gtk.MenuBar):
     def __init__(self):

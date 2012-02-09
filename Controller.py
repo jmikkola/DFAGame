@@ -1,5 +1,5 @@
 
-from states import *
+from Model import *
 
 class Controller:
     ''' Handles connection between the 
