@@ -6,7 +6,7 @@ import gtk
 import gobject
 
 from states import *
-
+        
 
 class BuilderWindow:
     def __init__(self):
@@ -24,7 +24,6 @@ class BuilderWindow:
         # Set content
         vb = gtk.VBox(False, 0)
         vb.pack_start(self._makeMenuBar(), False, False)
-        #vb.pack_start(self._makeToolBar(), False, False)
         vb.pack_start(self._makeLayout(), False, False)
         w.add(vb)
         # Return the window
@@ -48,14 +47,6 @@ class BuilderWindow:
         self.menuBar = menu
         return menu
 
-    def _makeToolBar(self):
-        ''' Create the tool bar '''
-        toolbar = gtk.Toolbar()
-        toolbar.set_style(gtk.TOOLBAR_BOTH)
-        toolbar.append_item('Save', None, None, None, None)
-        self.toolbar = toolbar
-        return toolbar
-
     def _makeLayout(self):
         ''' Creates the HBox within the window '''
         hb = gtk.HBox(False, 0)
@@ -66,12 +57,11 @@ class BuilderWindow:
 
     def _makeLeftPane(self):
         ''' Creates the VBox holding the left pane '''
-        vb = gtk.VBox(False, 0)
-        vb.set_border_width(5)
-        vb.pack_start(gtk.Button("abc"), False, False)
-        vb.pack_start(gtk.Button("def"), False, False)
-        self.leftPane = vb
-        return vb
+        drawing = gtk.DrawingArea()
+        drawing.set_size_request(400, 400)
+        drawing.connect('expose-event', self.draw_graph)
+        self.graphPane = drawing
+        return drawing
 
     def _makeRightPane(self):
         ''' Creates the VBox holding the right pane '''
@@ -167,14 +157,17 @@ class BuilderWindow:
             title = fileName + ' - ' + title
         self.window.set_title(title)
 
+    def draw_graph(self, area, event):
+        style = self.graphPane.get_style()
+        gc = style.fg_gc[gtk.STATE_NORMAL]
+        self.graphPane.window.draw_rectangle(gc, True, 100, 100, 200, 200)
+        return True
+
     def delete_event(self, widget, event, data=None):
         return False
 
     def destroy(self, widget, data=None):
         gtk.main_quit()
-
-    def main(self):
-        gtk.main()
 
 
 def leftLabel(text):
@@ -182,6 +175,9 @@ def leftLabel(text):
     label.set_alignment(0, 0.5)
     return label
 
-if __name__ == '__main__':
+def main():
     builder = BuilderWindow()
-    builder.main()
+    gtk.main()
+
+if __name__ == '__main__':
+    main()
