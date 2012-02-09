@@ -5,6 +5,7 @@ pygtk.require('2.0')
 import gtk
 import gobject
 
+from Controller import *
 from states import *
 
 class WindowMenu(gtk.MenuBar):
@@ -55,8 +56,10 @@ class GraphPane(gtk.DrawingArea):
                 
 
 class BuilderWindow:
-    def __init__(self):
+    def __init__(self, controller):
         ''' Set up the window '''
+        assert(controller is not None)
+        self.controller = controller
         # Create window
         w = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window = w
@@ -189,7 +192,8 @@ def leftLabel(text):
     return label
 
 def main():
-    builder = BuilderWindow()
+    controller = Controller()
+    builder = BuilderWindow(controller)
     gtk.main()
 
 if __name__ == '__main__':
