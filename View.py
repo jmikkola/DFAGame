@@ -53,71 +53,28 @@ class GraphPane(gtk.DrawingArea):
     def update(self, points):
         self.points = points
         self.queue_draw()
-                
 
-class BuilderWindow:
-    def __init__(self, controller):
-        ''' Set up the window '''
-        assert(controller is not None)
-        self.controller = controller
-        # Create window
-        w = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window = w
-        w.connect('delete_event', self.delete_event)
-        w.connect('destroy', self.destroy)
-        w.set_default_size(800,600)
-        # Set content
-        vb = gtk.VBox(False, 0)
-        self.menuBar = WindowMenu()
-        vb.pack_start(self.menuBar, False, False)
-        vb.pack_start(self.makeLayout(), False, False)
-        w.add(vb)
-        self.setTitle()
-        # Show the window
-        w.show_all()
+class StatePane(gtk.VBox):
+    def __init__(self):
+        gtk.VBox.__init__(self, False, 5)
+        self.set_border_width(5)
+        self.set_size_request(300, -1)
+        self.addStateSelection()
+        self.addStateText()
+        self.addTransitionAdd()
+        self.addTransitionList()
 
-    def makeLayout(self):
-        ''' Creates the HBox within the window '''
-        hb = gtk.HBox(False, 0)
-        self.graphPane = GraphPane()
-        hb.pack_start(self.graphPane)
-        hb.pack_start(self._makeRightPane(), False)
-        self.hb = hb
-        return hb
-
-    def _makeRightPane(self):
-        ''' Creates the VBox holding the right pane '''
-        # Setup
-        vb = gtk.VBox(False, 5)
-        vb.set_border_width(5)
-        vb.set_size_request(300, -1)
-        # Content - State selection
-        vb.pack_start(self._makeStateSelection(), False, False)
-        vb.pack_start(gtk.HSeparator())
-        # Content - State text
-        vb.pack_start(leftLabel('State text:'))
-        vb.pack_start(self._makeStateText(), False, False)
-        vb.pack_start(gtk.HSeparator())
-        # Content - Transitions
-        vb.pack_start(leftLabel('Transitions:'))
-        vb.pack_start(self._makeAddTransition(), False, False)
-        vb.pack_start(self._makeTransitionList(), False, False)
-        # Store
-        self.rightPane = vb
-        return vb
-
-    def _makeStateSelection(self):
-        ''' Creates selection box for states '''
+    def addStateSelection(self):
         hb = gtk.HBox(False, 0)
         stateLabel = leftLabel('State: ')
         hb.pack_start(stateLabel)
-        stateCombo = gtk.ComboBox()
-        hb.pack_start(stateCombo)
-        self.stateCombo = stateCombo
-        return hb
+        self.stateCombo = gtk.ComboBox()
+        hb.pack_start(self.stateCombo)
+        self.pack_start(hb)
+        self.pack_start(gtk.HSeparator())
 
-    def _makeStateText(self):
-        ''' Creates box for entering a state's text '''
+    def addStateText(self):
+        self.pack_start(leftLabel('State text:'))
         # Text box
         text = gtk.TextView()
         text.set_cursor_visible(True)
@@ -131,10 +88,10 @@ class BuilderWindow:
         # Store
         self.stateTextBuffer = text.get_buffer()
         self.stateText = text
-        return scroll
+        self.pack_start(scroll, False, False)
+        self.pack_start(gtk.HSeparator())
 
-    def _makeAddTransition(self):
-        ''' Creates the inputs to add a transition '''
+    def addTransitionAdd(self):
         vb = gtk.VBox(False, 0)
         entry = gtk.Entry(max = 100)
         vb.pack_start(entry)
@@ -148,21 +105,18 @@ class BuilderWindow:
         self.trEntry = entry
         self.trCombo = combo
         self.trAdd = btn
-        return vb
+        self.pack_start(vb, False, False)
 
-    def _makeTransitionList(self):
-        ''' Creates a scroll pane containing the list of 
-        transitions '''
+    def addTransitionList(self):
         # Scrolled Window
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
-        #scroll.set_size_request(0, 100)
         # List of transitions
         vb = gtk.VBox(False, 0)
         scroll.add_with_viewport(vb)
         self.trList = vb
-        return scroll
+        self.pack_start(scroll, False, False)
 
     def setTransitionItems(self, items):
         ''' Creates an element in the list of 
@@ -170,7 +124,41 @@ class BuilderWindow:
         self.trList.clear()
         for (n, s) in items:
             row = (n, s, gtk.Button('-'))
-            self.trList.append(row)
+            self.trList.append(row)                
+
+class BuilderWindow:
+    def __init__(self, controller):
+        ''' Set up the window '''
+        assert(controller is not None)
+        self.controller = controller
+        self.setupWindow()
+        self.setContent()
+        self.window.show_all()
+
+    def setupWindow(self):
+        w = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        w.connect('delete_event', self.delete_event)
+        w.connect('destroy', lambda w: gtk.main_quit())
+        w.set_default_size(800,600)
+        self.window = w
+
+    def setContent(self):
+        vb = gtk.VBox(False, 0)
+        # Menu bar
+        self.menuBar = WindowMenu()
+        vb.pack_start(self.menuBar, False, False)
+        # Main content
+        hb = gtk.HBox(False, 0)
+        # Left side
+        self.graphPane = GraphPane()
+        hb.pack_start(self.graphPane)
+        # Right side
+        self.statePane = StatePane()
+        hb.pack_start(self.statePane, False)
+        # Setup
+        vb.pack_start(hb, False, False)
+        self.window.add(vb)
+        self.setTitle()
 
     def setTitle(self, fileName=None):
         ''' Sets the title of the window '''
@@ -181,9 +169,6 @@ class BuilderWindow:
 
     def delete_event(self, widget, event, data=None):
         return False
-
-    def destroy(self, widget, data=None):
-        gtk.main_quit()
 
 
 def leftLabel(text):
