@@ -45,6 +45,7 @@ class GraphPane(gtk.DrawingArea):
         self.controller = controller
         self.points = []
         self.connect('expose-event', self.draw_graph)
+        controller.registerListener(lambda: self.queue_draw())
 
     def draw_graph(self, area, event):
         graph = self.controller.graph
@@ -56,16 +57,13 @@ class GraphPane(gtk.DrawingArea):
             self.window.draw_rectangle(gc, True, 20 + x*10, 20 + y*10, 10, 10)
         return True
 
-    def update(self, points):
-        self.points = points
-        self.queue_draw()
-
     def getIndexes(self, npoints):
         return [(i/10, i%10) for i in xrange(npoints)]
 
 class StatePane(gtk.VBox):
     def __init__(self, controller):
         gtk.VBox.__init__(self, False, 5)
+        self.stateSelection = 0
         self.controller = controller
         self.set_border_width(5)
         self.set_size_request(300, -1)
@@ -73,12 +71,59 @@ class StatePane(gtk.VBox):
         self.addStateText()
         self.addTransitionAdd()
         self.addTransitionList()
+        self.update()
+        controller.registerListener(lambda: self.update())
+
+    def update(self):
+        # Get info
+        graph = self.controller.graph
+        numStates = graph.numStates()
+        currentState = graph.getState(self.stateSelection)
+        # Update the UI
+        self.updateStateCombo(numStates)
+        self.updateStateText(currentState)
+        self.updateTrCombo(numStates)
+        self.populateTransitions(currentState, graph)
+
+    def updateStateCombo(self, numStates):
+        # Clear existing contents
+        model = self.stateCombo.get_model()
+        model.clear()
+        # Set new contents
+        for i in xrange(numStates):
+            s = '#' + str(i)
+            self.stateCombo.append_text(s)
+        self.stateCombo.set_active(self.stateSelection)
+
+    def updateStateText(self, state):
+        text = state.text
+        self.stateTextBuffer.set_text(text)
+
+    def updateTrCombo(self, numStates):
+        self.trCombo.get_model().clear()
+        for i in xrange(numStates):
+            self.trCombo.append_text('#' + str(i))
+            
+    def populateTransitions(self, state, graph):
+        for child in self.trList.get_children():
+            self.trList.remove(child)
+        for (cmd, st) in state.listTransitions():
+            hb = gtk.HBox()
+            text = cmd + ' to #' + str(graph.getIndex(st))
+            hb.pack_start(leftLabel(text), False, False, 5)
+            hb.pack_start(iconButton(gtk.STOCK_REMOVE), False, False)
+            self.trList.pack_start(hb, False, False)
 
     def addStateSelection(self):
+        # Set up combo box
+        self.stateCombo = gtk.ComboBox(gtk.ListStore(str))
+        cell = gtk.CellRendererText()
+        self.stateCombo.pack_start(cell, True)
+        self.stateCombo.add_attribute(cell, 'text', 0)
+        # Make layout
         hb = gtk.HBox(False, 0)
         stateLabel = leftLabel('State: ')
         hb.pack_start(stateLabel)
-        self.stateCombo = gtk.ComboBox()
         hb.pack_start(self.stateCombo)
         self.pack_start(hb)
         self.pack_start(gtk.HSeparator())
@@ -102,12 +147,18 @@ class StatePane(gtk.VBox):
         self.pack_start(gtk.HSeparator())
 
     def addTransitionAdd(self):
+        # Set up combo box
+        combo = gtk.ComboBox(gtk.ListStore(str))
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 0)
+        # Make layout
         vb = gtk.VBox(False, 0)
+        vb.pack_start(leftLabel('Add a transition:'))
         entry = gtk.Entry(max = 100)
         vb.pack_start(entry)
         hb = gtk.HBox(False, 0)
         hb.pack_start(leftLabel('to'), False, False, 5)
-        combo = gtk.ComboBox()
         hb.pack_start(combo, False, False, 5)
         btn = gtk.Button('add')
         hb.pack_start(btn, False, False, 5)
@@ -118,10 +169,11 @@ class StatePane(gtk.VBox):
         self.pack_start(vb, False, False)
 
     def addTransitionList(self):
+        self.pack_start(gtk.HSeparator())
+        self.pack_start(leftLabel('Transitions:'))
         # Scrolled Window
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         # List of transitions
         vb = gtk.VBox(False, 0)
         scroll.add_with_viewport(vb)
@@ -185,6 +237,13 @@ def leftLabel(text):
     label = gtk.Label(text)
     label.set_alignment(0, 0.5)
     return label
+
+def iconButton(stock_id):
+    btn = gtk.Button()
+    img = gtk.Image()
+    img.set_from_stock(stock_id, gtk.ICON_SIZE_MENU)
+    btn.add(img)
+    return btn
 
 def main():
     ''' This method starts the program '''

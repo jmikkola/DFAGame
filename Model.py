@@ -36,8 +36,8 @@ class State:
         return self.transitions[command]
 
     def listTransitions(self):
-        ''' Returns a list of all transition commands '''
-        return [k for (k,v) in self.transitions.iteritems()]
+        ''' Returns a list of all transition commands and states '''
+        return [(k,v) for (k,v) in self.transitions.iteritems()]
 
     def removeTransition(self, command):
         ''' Removes a transition with the given command '''

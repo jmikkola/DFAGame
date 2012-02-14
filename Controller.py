@@ -9,7 +9,22 @@ class Controller:
         # Set up default graph to show
         if graph is None:
             graph = Graph()
-            graph.addState('', {'start':True})
+            graph.addState('Start state', {'start':True})
+            s0 = graph.getState(0)
+            graph.addTransition(s0, s0, 'loop')
         self.graph = graph
+        # Set up listeners
+        self.listeners = []
+        
+
+    def registerListener(self, function):
+        if function in self.listeners:
+            return False
+        self.listeners.append(function)
+        return True
+
+    def notifyListeners(self):
+        for function in self.listeners:
+            function()
 
     
