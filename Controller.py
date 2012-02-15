@@ -87,7 +87,6 @@ class Controller:
         self.notifyListeners()
 
     def removeTransition(self, widget, command):
-        print 'removeTransition(): command =', command
         self.unsavedChanges = True
         start = self.getCurrentState()
         self.graph.removeTransition(start, command)
