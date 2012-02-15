@@ -11,10 +11,10 @@ This allows building a DFA representing a simple game.
 
 + Display vertices
   + Make them rounded
-	+ Set their color
-	  + Show current selection
-		+ Show their number?
-		  + Lay out - force based model?
+  + Set their color
+  + Show current selection
+  + Show their number?
+  + Lay out - force based model?
 + Draw edges
   + Arrows
   + Antialiased
