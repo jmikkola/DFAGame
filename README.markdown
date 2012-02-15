@@ -28,8 +28,8 @@ This allows building a DFA representing a simple game.
   + Game menu: play, play from selected, check for errors
   
 + 'Add' button to add transitions should not work if there is no transition text
++ Button for removing states should not work if state selected is the start state
 
-+ Needs buttons to add and remove states
 
 ### Logic work
 
@@ -38,9 +38,7 @@ This allows building a DFA representing a simple game.
   + Inescapable loops
   
 + Connect actions in view to logic
-  + Creating states
-  + Removing states
-  + Selecting a state (drop-down or graph)
+  + Selecting a state via the graph
   + Undoing
   + Redoing
   + Saving

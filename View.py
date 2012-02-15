@@ -54,15 +54,16 @@ class GraphPane(gtk.DrawingArea):
         indexes = self.getIndexes(npoints)
         for i in xrange(npoints):
             x, y = indexes[i]
-            self.window.draw_rectangle(gc, True, 20 + x*10, 20 + y*10, 10, 10)
+            self.window.draw_rectangle(gc, True, 20 + x*20, 20 + y*20, 10, 10)
         return True
 
     def getIndexes(self, npoints):
-        return [(i/10, i%10) for i in xrange(npoints)]
+        return [(i%10, i/10) for i in xrange(npoints)]
 
 class StatePane(gtk.VBox):
     def __init__(self, controller):
         gtk.VBox.__init__(self, False, 5)
+        self.updating = False
         self.controller = controller
         self.set_border_width(5)
         self.set_size_request(300, -1)
@@ -74,6 +75,9 @@ class StatePane(gtk.VBox):
         controller.registerListener(self.update)
 
     def update(self):
+        if self.updating: 
+            return
+        self.updating = True
         # Get info
         graph = self.controller.graph
         numStates = graph.numStates()
@@ -83,6 +87,7 @@ class StatePane(gtk.VBox):
         self.updateStateText(currentState)
         self.updateTrCombo(numStates)
         self.populateTransitions(currentState, graph)
+        self.updating = False
 
     def updateStateCombo(self, numStates):
         # Clear existing contents
@@ -119,9 +124,11 @@ class StatePane(gtk.VBox):
         cell = gtk.CellRendererText()
         self.stateCombo.pack_start(cell, True)
         self.stateCombo.add_attribute(cell, 'text', 0)
+        self.stateCombo.connect('changed', self.controller.selectState)
         self.addBtn = iconButton(gtk.STOCK_ADD, text='Create new state')
         self.addBtn.connect('clicked', self.controller.createState)
         self.rmBtn = iconButton(gtk.STOCK_REMOVE, text='Remove')
+        self.rmBtn.connect('clicked', self.controller.removeState)
         # Make layout
         hb2 = gtk.HBox(False, 0)
         hb2.pack_start(self.addBtn, False, False)

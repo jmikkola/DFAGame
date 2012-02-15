@@ -84,7 +84,6 @@ class Graph:
 
     def getState(self, index):
         ''' Gets the state at the given index '''
-        assert(index >= 0 and index < self.numStates())
         return self.states[index]
 
     def getIndex(self, state):
@@ -98,9 +97,9 @@ class Graph:
         self.states.append(state)
         return state
 
-    def removeState(self, state):
-        ''' Removes a state from the graph '''
-        del self.states[self.getIndex(state)]
+    def removeState(self, index):
+        ''' Removes a state by index from the graph '''
+        state = self.states.pop(index)
         for s in self.states:
             s.removeConnections(state)
 
