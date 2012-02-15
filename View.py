@@ -45,7 +45,7 @@ class GraphPane(gtk.DrawingArea):
         self.controller = controller
         self.points = []
         self.connect('expose-event', self.draw_graph)
-        controller.registerListener(lambda: self.queue_draw())
+        controller.registerListener(self.queue_draw)
 
     def draw_graph(self, area, event):
         graph = self.controller.graph
@@ -63,7 +63,6 @@ class GraphPane(gtk.DrawingArea):
 class StatePane(gtk.VBox):
     def __init__(self, controller):
         gtk.VBox.__init__(self, False, 5)
-        self.stateSelection = 0
         self.controller = controller
         self.set_border_width(5)
         self.set_size_request(300, -1)
@@ -72,13 +71,13 @@ class StatePane(gtk.VBox):
         self.addTransitionAdd()
         self.addTransitionList()
         self.update()
-        controller.registerListener(lambda: self.update())
+        controller.registerListener(self.update)
 
     def update(self):
         # Get info
         graph = self.controller.graph
         numStates = graph.numStates()
-        currentState = graph.getState(self.stateSelection)
+        currentState = self.controller.getCurrentState()
         # Update the UI
         self.updateStateCombo(numStates)
         self.updateStateText(currentState)
@@ -93,7 +92,7 @@ class StatePane(gtk.VBox):
         for i in xrange(numStates):
             s = '#' + str(i)
             self.stateCombo.append_text(s)
-        self.stateCombo.set_active(self.stateSelection)
+        self.stateCombo.set_active(self.controller.selection)
 
     def updateStateText(self, state):
         text = state.text
@@ -115,16 +114,22 @@ class StatePane(gtk.VBox):
             self.trList.pack_start(hb, False, False)
 
     def addStateSelection(self):
-        # Set up combo box
+        # Create elements
         self.stateCombo = gtk.ComboBox(gtk.ListStore(str))
         cell = gtk.CellRendererText()
         self.stateCombo.pack_start(cell, True)
         self.stateCombo.add_attribute(cell, 'text', 0)
+        self.addBtn = iconButton(gtk.STOCK_ADD, text='Create new state')
+        self.addBtn.connect('clicked', self.controller.createState)
+        self.rmBtn = iconButton(gtk.STOCK_REMOVE, text='Remove')
         # Make layout
+        hb2 = gtk.HBox(False, 0)
+        hb2.pack_start(self.addBtn, False, False)
+        self.pack_start(hb2)
         hb = gtk.HBox(False, 0)
-        stateLabel = leftLabel('State: ')
-        hb.pack_start(stateLabel)
-        hb.pack_start(self.stateCombo)
+        hb.pack_start(leftLabel('State:'), False, False, 5)
+        hb.pack_start(self.stateCombo, False, False, 5)
+        hb.pack_end(self.rmBtn, False, False, 5)
         self.pack_start(hb)
         self.pack_start(gtk.HSeparator())
 
@@ -238,11 +243,17 @@ def leftLabel(text):
     label.set_alignment(0, 0.5)
     return label
 
-def iconButton(stock_id):
+def iconButton(stock_id, text=None):
     btn = gtk.Button()
     img = gtk.Image()
     img.set_from_stock(stock_id, gtk.ICON_SIZE_MENU)
-    btn.add(img)
+    if text:
+        hbx = gtk.HBox(False, 0)
+        hbx.pack_start(img, padding=5)
+        hbx.pack_start(gtk.Label(text), padding=5)
+        btn.add(hbx)
+    else:
+        btn.add(img)
     return btn
 
 def main():
