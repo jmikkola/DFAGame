@@ -115,8 +115,11 @@ class StatePane(gtk.VBox):
             hb = gtk.HBox()
             text = cmd + ' to #' + str(graph.getIndex(st))
             hb.pack_start(leftLabel(text), False, False, 5)
-            hb.pack_start(iconButton(gtk.STOCK_REMOVE), False, False)
+            btn = iconButton(gtk.STOCK_REMOVE)
+            btn.connect('clicked', self.controller.removeTransition, cmd)
+            hb.pack_start(btn, False, False, 5)
             self.trList.pack_start(hb, False, False)
+            hb.show_all()
 
     def addStateSelection(self):
         # Create elements
@@ -175,6 +178,7 @@ class StatePane(gtk.VBox):
         hb.pack_start(leftLabel('to'), False, False, 5)
         hb.pack_start(combo, False, False, 5)
         btn = gtk.Button('add')
+        btn.connect('clicked', self.cb_add_transition)
         hb.pack_start(btn, False, False, 5)
         vb.pack_start(hb)
         self.trEntry = entry
@@ -201,6 +205,11 @@ class StatePane(gtk.VBox):
         for (n, s) in items:
             row = (n, s, gtk.Button('-'))
             self.trList.append(row)                
+
+    def cb_add_transition(self, widget):
+        command = self.trEntry.get_text()
+        endNo = self.trCombo.get_active()
+        self.controller.createTransition(widget, (command, endNo))
 
 class BuilderWindow:
     def __init__(self, controller):

@@ -11,8 +11,6 @@ class Controller:
         if graph is None:
             graph = Graph()
             graph.addState('Start state', {'start':True})
-            s0 = graph.getState(0)
-            graph.addTransition(s0, s0, 'loop')
         self.graph = graph
         self.selection = 0
         self.fileOpen = None
@@ -37,6 +35,7 @@ class Controller:
         # trying to hit this at the same time:
         if self.notifying: return
         self.notifying = True
+        print json.dumps(self.graph.toSerializable(), indent=4)
         for function in self.listeners:
             function()
         self.notifying = False
@@ -78,3 +77,18 @@ class Controller:
         text = widget.get_text(widget.get_start_iter(), widget.get_end_iter())
         self.graph.getState(self.selection).text = text
         # No re-draw needed
+
+    def createTransition(self, widget, data):
+        self.unsavedChanges = True
+        command, endNo = data
+        start = self.getCurrentState()
+        end = self.graph.getState(endNo)
+        self.graph.addTransition(start, end, command)
+        self.notifyListeners()
+
+    def removeTransition(self, widget, command):
+        print 'removeTransition(): command =', command
+        self.unsavedChanges = True
+        start = self.getCurrentState()
+        self.graph.removeTransition(start, command)
+        self.notifyListeners()

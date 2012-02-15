@@ -29,6 +29,7 @@ This allows building a DFA representing a simple game.
   
 + 'Add' button to add transitions should not work if there is no transition text
 + Button for removing states should not work if state selected is the start state
++ Button to add transitions should warn on over-writing existing transition
 
 
 ### Logic work
@@ -44,12 +45,6 @@ This allows building a DFA representing a simple game.
   + Saving
   + Opening
   + Closing
-  + Changing state text
-  + Adding a transition
-  + Removing transitions
 
 + Connect displays in view to logic
   + Graph
-  + State text
-  + State selection
-  + Transition list

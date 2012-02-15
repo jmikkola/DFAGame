@@ -125,7 +125,7 @@ class Graph:
                       'transitions': trns,
                       'attributes': v.attributes} 
         return out
-        
+
 
 def saveGraph(graph, filename):
     ''' Saves the graph to the given file name '''
