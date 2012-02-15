@@ -147,13 +147,15 @@ class StatePane(gtk.VBox):
         text.set_cursor_visible(True)
         text.set_wrap_mode(gtk.WRAP_CHAR)
         text.set_size_request(0, 100)
+        textBuffer = text.get_buffer()
+        textBuffer.connect('end-user-action', self.controller.updateStateText)
         # Scrolled window
         scroll = gtk.ScrolledWindow()
         scroll.add(text)
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
         scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         # Store
-        self.stateTextBuffer = text.get_buffer()
+        self.stateTextBuffer = textBuffer
         self.stateText = text
         self.pack_start(scroll, False, False)
         self.pack_start(gtk.HSeparator())

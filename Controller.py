@@ -67,8 +67,14 @@ class Controller:
             self.notifyListeners()
 
     def removeState(self, widget):
+        if self.selection is 0: return
         self.unsavedChanges = True
-        # TODO: ensure state is not the start state
         self.graph.removeState(self.selection)
         self.selection -= 1
         self.notifyListeners()
+
+    def updateStateText(self, widget):
+        self.unsavedChanges = True
+        text = widget.get_text(widget.get_start_iter(), widget.get_end_iter())
+        self.graph.getState(self.selection).text = text
+        # No re-draw needed
