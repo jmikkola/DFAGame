@@ -7,6 +7,7 @@ import gobject
 
 from Controller import *
 from Model import *
+from GraphArea import *
 
 class WindowMenu(gtk.MenuBar):
     def __init__(self, controller):
@@ -38,27 +39,6 @@ class WindowMenu(gtk.MenuBar):
         mi.set_submenu(menu)
         self.add(mi)
         return mi
-
-class GraphPane(gtk.DrawingArea):
-    def __init__(self, controller):
-        gtk.DrawingArea.__init__(self)
-        self.controller = controller
-        self.points = []
-        self.connect('expose-event', self.draw_graph)
-        controller.registerListener(self.queue_draw)
-
-    def draw_graph(self, area, event):
-        graph = self.controller.graph
-        gc = self.get_style().fg_gc[gtk.STATE_NORMAL]
-        npoints = graph.numStates()
-        indexes = self.getIndexes(npoints)
-        for i in xrange(npoints):
-            x, y = indexes[i]
-            self.window.draw_rectangle(gc, True, 20 + x*20, 20 + y*20, 10, 10)
-        return True
-
-    def getIndexes(self, npoints):
-        return [(i%10, i/10) for i in xrange(npoints)]
 
 class StatePane(gtk.VBox):
     def __init__(self, controller):
@@ -135,16 +115,16 @@ class StatePane(gtk.VBox):
         # Make layout
         hb2 = gtk.HBox(False, 0)
         hb2.pack_start(self.addBtn, False, False)
-        self.pack_start(hb2)
+        self.pack_start(hb2, False)
         hb = gtk.HBox(False, 0)
         hb.pack_start(leftLabel('State:'), False, False, 5)
         hb.pack_start(self.stateCombo, False, False, 5)
         hb.pack_end(self.rmBtn, False, False, 5)
-        self.pack_start(hb)
-        self.pack_start(gtk.HSeparator())
+        self.pack_start(hb, False)
+        self.pack_start(gtk.HSeparator(), False)
 
     def addStateText(self):
-        self.pack_start(leftLabel('State text:'))
+        self.pack_start(leftLabel('State text:'), False)
         # Text box
         text = gtk.TextView()
         text.set_cursor_visible(True)
@@ -161,7 +141,7 @@ class StatePane(gtk.VBox):
         self.stateTextBuffer = textBuffer
         self.stateText = text
         self.pack_start(scroll, False, False)
-        self.pack_start(gtk.HSeparator())
+        self.pack_start(gtk.HSeparator(), False)
 
     def addTransitionAdd(self):
         # Set up combo box
@@ -187,8 +167,8 @@ class StatePane(gtk.VBox):
         self.pack_start(vb, False, False)
 
     def addTransitionList(self):
-        self.pack_start(gtk.HSeparator())
-        self.pack_start(leftLabel('Transitions:'))
+        self.pack_start(gtk.HSeparator(), False)
+        self.pack_start(leftLabel('Transitions:'), False)
         # Scrolled Window
         scroll = gtk.ScrolledWindow()
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
@@ -235,13 +215,14 @@ class BuilderWindow:
         # Main content
         hb = gtk.HBox(False, 0)
         # Left side
-        self.graphPane = GraphPane(self.controller)
+        ##self.graphPane = GraphPane(self.controller)
+        self.graphPane = GraphArea(self.controller)
         hb.pack_start(self.graphPane)
         # Right side
         self.statePane = StatePane(self.controller)
         hb.pack_start(self.statePane, False)
         # Setup
-        vb.pack_start(hb, False, False)
+        vb.pack_start(hb, True, True)
         self.window.add(vb)
         self.setTitle()
 
