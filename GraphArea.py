@@ -38,41 +38,48 @@ class GraphArea(gtk.DrawingArea):
 
     def draw_graph(self, cr):
         npoints = self.graph.numStates()
-        indexes = self.getIndexes(npoints)
-        scale = lambda p: 20 + 20*p
         green = (0, 0.5, 0)
-
-        # Draw vertices
-        for i in xrange(npoints):
-            x, y = indexes[i]
-            self.draw_node(cr, scale(x), scale(y), green)
 
         # Draw transitions
         for i in xrange(npoints):
-            print "drawing transitions for state", i
-            fromX, fromY = indexes[i]
+            fromXY = self.getPosition(i)
             fromState = self.graph.getState(i)
             for (_, toState) in fromState.listTransitions():
                 j = self.graph.getIndex(toState)
-                print "\tto state", j
-                toX, toY = indexes[j]
-                self.draw_transition(cr, scale(fromX), scale(fromY), scale(toX), scale(toY))
-        return True
+                if i == j:
+                    self.draw_loop(cr, fromXY)
+                else:
+                    toXY = self.getPosition(j)
+                    self.draw_transition(cr, fromXY, toXY)
 
-    def draw_node(self, cr, x, y, color):
+        # Draw vertices
+        for i in xrange(npoints):
+            self.draw_node(cr, self.getPosition(i), green)
+
+
+    def draw_node(self, cr, (x, y), color):
         cr.save()
         cr.set_source_rgb(*color)
         cr.arc(x, y, 5, 0, 2 * pi)
         cr.fill()
         cr.restore()
 
-    def draw_transition(self, cr, fromX, fromY, toX, toY):
+    def draw_transition(self, cr, fromXY, toXY):
         cr.save()
         cr.set_source_rgb(0, 0, 0)
-        cr.move_to(fromX, fromY)
-        cr.line_to(toX, toY)
+        cr.move_to(*fromXY)
+        cr.line_to(*toXY)
         cr.stroke()
         cr.restore()
 
-    def getIndexes(self, npoints):
-        return [(i%10, i/10) for i in xrange(npoints)]
+    def draw_loop(self, cr, fromXY, scale=5):
+        cr.save()
+        cr.move_to(*fromXY)
+        cr.set_source_rgb(0, 0, 1)
+        cr.rel_curve_to(scale, -2*scale, scale, -3*scale, 0, -3*scale)
+        cr.rel_curve_to(-scale, 0, -scale, scale, 0, 3*scale)
+        cr.stroke()
+        cr.restore()
+
+    def getPosition(self, i):
+        return 20 + 20*(i%10), 20 + 20*(i/10)
