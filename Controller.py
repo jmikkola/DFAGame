@@ -1,5 +1,6 @@
 
 from Model import *
+from View import *
 
 class Controller:
     ''' Handles connection between the 
@@ -91,3 +92,20 @@ class Controller:
         start = self.getCurrentState()
         self.graph.removeTransition(start, command)
         self.notifyListeners()
+        
+    def saveGame(self, menu):
+        filename = self.fileOpen
+        if filename is None or menu == 'file.saveas':
+            filename = fileDialog(save=True)
+        if filename:
+            # TODO: check for overwriting existing file
+            saveGraph(self.graph, filename)
+            self.unsavedChanges = False
+
+    def openGame(self, menu):
+        # TODO: check for unsaved progress
+        filename = fileDialog()
+        if filename:
+            self.graph = loadGraph(filename)
+            self.unsavedChanges = False
+            self.notifyListeners()

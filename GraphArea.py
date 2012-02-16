@@ -14,7 +14,6 @@ class GraphArea(gtk.DrawingArea):
     def __init__(self, controller):
         gtk.DrawingArea.__init__(self)
         self.controller = controller
-        self.graph = controller.graph
         controller.registerListener(self.queue_draw)
 
     # Handle the expose-event by drawing
@@ -37,15 +36,16 @@ class GraphArea(gtk.DrawingArea):
         self.draw_graph(cr)
 
     def draw_graph(self, cr):
-        npoints = self.graph.numStates()
+        graph = self.controller.graph
+        npoints = graph.numStates()
         green = (0, 0.5, 0)
 
         # Draw transitions
         for i in xrange(npoints):
             fromXY = self.getPosition(i)
-            fromState = self.graph.getState(i)
+            fromState = graph.getState(i)
             for (_, toState) in fromState.listTransitions():
-                j = self.graph.getIndex(toState)
+                j = graph.getIndex(toState)
                 if i == j:
                     self.draw_loop(cr, fromXY)
                 else:

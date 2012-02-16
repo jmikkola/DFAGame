@@ -9,6 +9,31 @@ from Controller import *
 from Model import *
 from GraphArea import *
 
+def fileDialog(save=False):
+    filename = None
+    if save:
+        action = gtk.FILE_CHOOSER_ACTION_SAVE
+    else:
+        action = gtk.FILE_CHOOSER_ACTION_OPEN
+
+    # Set up dialog
+    dialog = gtk.FileChooserDialog(
+        title = None, 
+        action = action,
+        buttons = (gtk.STOCK_CANCEL, 
+                   gtk.RESPONSE_CANCEL,
+                   gtk.STOCK_OPEN,
+                   gtk.RESPONSE_OK))
+    dialog.set_default_response(gtk.RESPONSE_OK)
+
+    # Show dialog & get result
+    response = dialog.run()
+    if response == gtk.RESPONSE_OK:
+        filename = dialog.get_filename()
+    dialog.destroy()
+    return filename
+
+
 class WindowMenu(gtk.MenuBar):
     def __init__(self, controller):
         gtk.MenuBar.__init__(self)
@@ -20,6 +45,12 @@ class WindowMenu(gtk.MenuBar):
     def makeFileMenu(self):
         mi = gtk.MenuItem('File')
         menu = gtk.Menu()
+        miOpen = gtk.MenuItem('Open')
+        miOpen.connect_object('activate', self.controller.openGame, 'file.open')
+        menu.add(miOpen)
+        miSave = gtk.MenuItem('Save')
+        miSave.connect_object('activate', self.controller.saveGame, 'file.save')
+        menu.add(miSave)
         miQuit = gtk.MenuItem('Quit')
         menu.add(miQuit)
         mi.set_submenu(menu)

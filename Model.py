@@ -61,19 +61,24 @@ class Graph:
     ''' This class stores an entire transition graph made
     out of State objects.'''
     def __init__(self, serialized=None):
-        self.states = []
         if serialized:
             self._readSerialized(serialized)
+        else:
+            self.states = []
 
     def _readSerialized(self, serialized):
         ''' Reads in the graph from a serialized format '''
-        for i,v in serialized.iteritems():
-            assert(i == len(self.states))
-            state = State(v['state'], attributes=v['attributes'])
+        self.states = []
+
+        # Read in states with text and attirbutes
+        for st in serialized:
+            state = State(st['state'], attributes=st['attributes'])
             self.states.append(state)
-        for i,v in serialized.iteritems():
+
+        # Add transitions between states
+        for i,st in enumerate(serialized):
             start = self.states[i]
-            transitions = v['transitions']
+            transitions = st['transitions']
             for cmd,j in transitions.iteritems():
                 end = self.states[j]
                 self.addTransition(start, end, cmd)
@@ -117,13 +122,13 @@ class Graph:
         ''' Converts graph into a format that can be
         serialized into JSON '''
         numbers = dict((v,i) for (i,v) in enumerate(self.states))
-        out = dict()
+        out = []
         for i,v in enumerate(self.states):
             trns = dict((cmd,numbers[st]) for (cmd,st) \
                             in v.transitions.iteritems())
-            out[i] = {'state': v.text, 
-                      'transitions': trns,
-                      'attributes': v.attributes} 
+            out.append({'state': v.text, 
+                        'transitions': trns,
+                        'attributes': v.attributes})
         return out
 
 
