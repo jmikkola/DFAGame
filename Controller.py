@@ -1,4 +1,6 @@
 
+from os import path
+
 from Model import *
 from View import *
 
@@ -94,18 +96,28 @@ class Controller:
         self.notifyListeners()
         
     def saveGame(self, menu):
+        # Get file name
         filename = self.fileOpen
         if filename is None or menu == 'file.saveas':
             filename = fileDialog(save=True)
         if filename:
-            # TODO: check for overwriting existing file
+            # Check for overwriting existing file
+            if path.exists(filename) and not \
+                    askYesNO('Overwrite existing file?'):
+                return
+            # Save file
             saveGraph(self.graph, filename)
             self.unsavedChanges = False
 
     def openGame(self, menu):
-        # TODO: check for unsaved progress
+        # Check for unsaved changes
+        if self.unsavedChanges and not \
+                askYesNO('There are unsaved changes. Open the file anyway?'): 
+            return
+        # Open the file
         filename = fileDialog()
         if filename:
             self.graph = loadGraph(filename)
             self.unsavedChanges = False
+            self.fileOpen = filename
             self.notifyListeners()

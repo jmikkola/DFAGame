@@ -34,6 +34,19 @@ def fileDialog(save=False):
     return filename
 
 
+def askYesNO(question):
+    # Build dialog
+    dialog = gtk.MessageDialog(
+        type = gtk.MESSAGE_QUESTION,
+        buttons = gtk.BUTTONS_YES_NO, 
+        message_format = question)
+
+    # Show dialog & get result
+    response = dialog.run()
+    dialog.destroy()
+    return (response == gtk.RESPONSE_YES)
+
+
 class WindowMenu(gtk.MenuBar):
     def __init__(self, controller):
         gtk.MenuBar.__init__(self)
@@ -221,6 +234,7 @@ class StatePane(gtk.VBox):
         command = self.trEntry.get_text()
         endNo = self.trCombo.get_active()
         self.controller.createTransition(widget, (command, endNo))
+        self.trEntry.set_text('')
 
 class BuilderWindow:
     def __init__(self, controller):
