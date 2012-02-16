@@ -15,12 +15,10 @@ class GraphArea(gtk.DrawingArea):
         gtk.DrawingArea.__init__(self)
         self.controller = controller
         self.graph = controller.graph
-        #self.connect('expose-event', self.draw_graph)
         controller.registerListener(self.queue_draw)
 
     # Handle the expose-event by drawing
     def do_expose_event(self, event):
-        print "GraphArea.do_expose_event called"
         # Create the cairo context
         cr = self.window.cairo_create()
 
@@ -42,16 +40,38 @@ class GraphArea(gtk.DrawingArea):
         npoints = self.graph.numStates()
         indexes = self.getIndexes(npoints)
         scale = lambda p: 20 + 20*p
+        green = (0, 0.5, 0)
+
+        # Draw vertices
         for i in xrange(npoints):
             x, y = indexes[i]
-            self.draw_node(scale(x), scale(y), cr, (0, 0.5, 0))
+            self.draw_node(cr, scale(x), scale(y), green)
+
+        # Draw transitions
+        for i in xrange(npoints):
+            print "drawing transitions for state", i
+            fromX, fromY = indexes[i]
+            fromState = self.graph.getState(i)
+            for (_, toState) in fromState.listTransitions():
+                j = self.graph.getIndex(toState)
+                print "\tto state", j
+                toX, toY = indexes[j]
+                self.draw_transition(cr, scale(fromX), scale(fromY), scale(toX), scale(toY))
         return True
 
-    def draw_node(self, x, y, cr, color):
+    def draw_node(self, cr, x, y, color):
         cr.save()
         cr.set_source_rgb(*color)
         cr.arc(x, y, 5, 0, 2 * pi)
         cr.fill()
+        cr.restore()
+
+    def draw_transition(self, cr, fromX, fromY, toX, toY):
+        cr.save()
+        cr.set_source_rgb(0, 0, 0)
+        cr.move_to(fromX, fromY)
+        cr.line_to(toX, toY)
+        cr.stroke()
         cr.restore()
 
     def getIndexes(self, npoints):

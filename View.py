@@ -215,7 +215,6 @@ class BuilderWindow:
         # Main content
         hb = gtk.HBox(False, 0)
         # Left side
-        ##self.graphPane = GraphPane(self.controller)
         self.graphPane = GraphArea(self.controller)
         hb.pack_start(self.graphPane)
         # Right side
