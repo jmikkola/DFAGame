@@ -20,7 +20,7 @@ class GraphArea(gtk.DrawingArea):
 
     # Handle the expose-event by drawing
     def do_expose_event(self, event):
-
+        print "GraphArea.do_expose_event called"
         # Create the cairo context
         cr = self.window.cairo_create()
 
@@ -36,23 +36,23 @@ class GraphArea(gtk.DrawingArea):
         cr.set_source_rgb(1, 1, 1)
         cr.rectangle(0, 0, width, height)
         cr.fill()
+        self.draw_graph(cr)
 
     def draw_graph(self, cr):
         npoints = self.graph.numStates()
         indexes = self.getIndexes(npoints)
+        scale = lambda p: 20 + 20*p
         for i in xrange(npoints):
             x, y = indexes[i]
-            self.draw_node(x, y, cr, (0,1,0))
+            self.draw_node(scale(x), scale(y), cr, (0, 0.5, 0))
         return True
 
     def draw_node(self, x, y, cr, color):
+        cr.save()
         cr.set_source_rgb(*color)
-        width, height = 20, 20
-        cr.move_to(0.5, 0.5)
-        cr.arc(width / 2.0, height / 2.0, radius / 2.0 - 20, 0, 2 * pi)
-        cr.stroke()
-        cr.arc(width / 2.0, height / 2.0, radius / 3.0 - 10, pi / 3, 2 * pi / 3)
-        cr.stroke()
+        cr.arc(x, y, 5, 0, 2 * pi)
+        cr.fill()
+        cr.restore()
 
     def getIndexes(self, npoints):
         return [(i%10, i/10) for i in xrange(npoints)]
