@@ -10,14 +10,11 @@ This allows building a DFA representing a simple game.
 ### Graph rendering
 
 + Display vertices
-  + Make them rounded
-  + Set their color
   + Show current selection
   + Show their number?
-  + Lay out - force based model?
+  + Lay out - user specified, automatic for new points
 + Draw edges
   + Arrows
-  + Antialiased
 + Make verices clickable
   
 ### UI work
@@ -30,10 +27,9 @@ This allows building a DFA representing a simple game.
 + 'Add' button to add transitions should not work if there is no transition text
 + Button for removing states should not work if state selected is the start state
 + Button to add transitions should warn on over-writing existing transition
-
-+ Create UI elements for dialog box and file selector
-
 + Create keyboard shortcuts
++ Show file name in title bar
++ Show the text of the "to" state in a tooltip when creating transitions
 
 ### Logic work
 
@@ -45,12 +41,7 @@ This allows building a DFA representing a simple game.
   + Selecting a state via the graph
   + Undoing
   + Redoing
-  + Saving
-  + Opening
   + Closing
-
-+ Connect displays in view to logic
-  + Graph
 
 + Create file handling logic
   + Ask about saving changes
