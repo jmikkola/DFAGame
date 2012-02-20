@@ -77,7 +77,8 @@ class Controller:
 
     def updateStateText(self, widget):
         self.unsavedChanges = True
-        text = widget.get_text(widget.get_start_iter(), widget.get_end_iter())
+        text = widget.get_text(widget.get_start_iter(), \
+                               widget.get_end_iter())
         self.graph.getState(self.selection).text = text
         # No re-draw needed
 
@@ -104,15 +105,16 @@ class Controller:
             # Check for overwriting existing file
             if path.exists(filename) and not \
                     askYesNO('Overwrite existing file?'):
-                return
+                return False
             # Save file
             saveGraph(self.graph, filename)
             self.unsavedChanges = False
+            return True
+        return False
 
     def openGame(self, menu):
         # Check for unsaved changes
-        if self.unsavedChanges and not \
-                askYesNO('There are unsaved changes. Open the file anyway?'): 
+        if self.unsavedChanges and not self.checkClose(False):
             return
         # Open the file
         filename = fileDialog()
@@ -121,3 +123,19 @@ class Controller:
             self.unsavedChanges = False
             self.fileOpen = filename
             self.notifyListeners()
+
+    def checkClose(self, quitting=True):
+        ''' Called before closing the program or file
+        to ensure no unsaved changes are lost. Returns
+        True is the close should still be performed, 
+        or False to indicate that the operation should 
+        be canceled. '''
+        if self.unsavedChanges is False:
+            return True
+        answer = askUnsavedChanges(quitting)
+        if answer is 2:
+            return False
+        if answer is 1:
+            if not self.saveGame('quit'):
+                return False
+        return True

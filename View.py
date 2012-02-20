@@ -46,6 +46,29 @@ def askYesNO(question):
     dialog.destroy()
     return (response == gtk.RESPONSE_YES)
 
+def askUnsavedChanges(quitting):
+    question = 'There are unsaved changed.'
+    if quitting:
+        close = 'Close without saving'
+    else:
+        close = 'Discard changes'
+
+    # Build dialog
+    dialog = gtk.MessageDialog(
+        type = gtk.MESSAGE_WARNING,
+        buttons = gtk.BUTTONS_NONE,
+        message_format = question)
+    dialog.add_button('Save', 1)
+    dialog.add_button('Cancel', 2)
+    dialog.add_button(close, 3)
+    dialog.set_default_response(1)
+
+    # Show dialog & get result
+    response = dialog.run()
+    dialog.destroy()
+    if response < 1: 
+        response = 2 # default to Cancel
+    return response
 
 class WindowMenu(gtk.MenuBar):
     def __init__(self, controller):
@@ -59,10 +82,12 @@ class WindowMenu(gtk.MenuBar):
         mi = gtk.MenuItem('File')
         menu = gtk.Menu()
         miOpen = gtk.MenuItem('Open')
-        miOpen.connect_object('activate', self.controller.openGame, 'file.open')
+        miOpen.connect_object(
+            'activate', self.controller.openGame, 'file.open')
         menu.add(miOpen)
         miSave = gtk.MenuItem('Save')
-        miSave.connect_object('activate', self.controller.saveGame, 'file.save')
+        miSave.connect_object(
+            'activate', self.controller.saveGame, 'file.save')
         menu.add(miSave)
         miQuit = gtk.MenuItem('Quit')
         menu.add(miQuit)
@@ -278,7 +303,10 @@ class BuilderWindow:
         self.window.set_title(title)
 
     def delete_event(self, widget, event, data=None):
-        return False
+        ''' Handle the event to delete the window '''
+        if self.controller.checkClose():
+            return False
+        return True
 
 
 def leftLabel(text):
