@@ -94,7 +94,7 @@ class Graph:
     def getIndex(self, state):
         ''' Returns the index of the state '''
         return self.states.index(state)
-        
+
     def addState(self, text='', attributes=None):
         ''' Adds a State object with the given text to the 
         graph, and returns the new state object '''

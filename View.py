@@ -200,7 +200,8 @@ class StatePane(gtk.VBox):
         text.set_wrap_mode(gtk.WRAP_CHAR)
         text.set_size_request(0, 100)
         textBuffer = text.get_buffer()
-        textBuffer.connect('end-user-action', self.controller.updateStateText)
+        textBuffer.connect('end-user-action', \
+                           self.controller.updateStateText)
         # Scrolled window
         scroll = gtk.ScrolledWindow()
         scroll.add(text)

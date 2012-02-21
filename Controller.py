@@ -10,11 +10,18 @@ class Controller:
     state for the UI. '''
 
     def __init__(self, graph=None):
+        # Graph display values
+        self.maxXdist = 0
+        self.maxYdist = 0
+        self.space = 20
+        self.nPositions = 0
         # Set up default graph to show
         if graph is None:
             graph = Graph()
-            graph.addState('Start state', {'start':True})
+            state = graph.addState('Start state', {'start':True})
+            self.setPosition(state)
         self.graph = graph
+        # UI-related values
         self.selection = 0
         self.fileOpen = None
         self.unsavedChanges = False
@@ -38,7 +45,7 @@ class Controller:
         # trying to hit this at the same time:
         if self.notifying: return
         self.notifying = True
-        print json.dumps(self.graph.toSerializable(), indent=4)
+        #print json.dumps(self.graph.toSerializable(), indent=4)
         for function in self.listeners:
             function()
         self.notifying = False
@@ -59,6 +66,8 @@ class Controller:
         self.unsavedChanges = True
         state = self.graph.addState()
         self.selection = self.graph.numStates() - 1
+        self.setPosition(state)
+        # Notify change
         self.notifyListeners()
 
     def selectState(self, widget):
@@ -73,6 +82,7 @@ class Controller:
         self.unsavedChanges = True
         self.graph.removeState(self.selection)
         self.selection -= 1
+        self.recalcPositions()
         self.notifyListeners()
 
     def updateStateText(self, widget):
@@ -95,7 +105,12 @@ class Controller:
         start = self.getCurrentState()
         self.graph.removeTransition(start, command)
         self.notifyListeners()
-        
+
+
+    # ----------------------------------
+    # Functions for file handling
+    # ----------------------------------
+
     def saveGame(self, menu):
         # Get file name
         filename = self.fileOpen
@@ -119,10 +134,16 @@ class Controller:
         # Open the file
         filename = fileDialog()
         if filename:
-            self.graph = loadGraph(filename)
-            self.unsavedChanges = False
-            self.fileOpen = filename
-            self.notifyListeners()
+            self.loadGraph(filename)
+
+    def loadGraph(self, filename):
+        ''' Handles loading a graph '''
+        self.graph = loadGraph(filename)
+        self.unsavedChanges = False
+        self.fileOpen = filename
+        for state in self.graph.states:
+            self.setPosition(state)
+        self.notifyListeners()
 
     def checkClose(self, quitting=True):
         ''' Called before closing the program or file
@@ -139,3 +160,58 @@ class Controller:
             if not self.saveGame('quit'):
                 return False
         return True
+
+
+    # ----------------------------------
+    # Functions for graph display
+    # ----------------------------------
+
+    def getPosition(self, stateNo):
+        ''' Gives the position of the given state '''
+        state = self.graph.getState(stateNo)
+        attrs = state.attributes
+        return int(attrs['x']), int(attrs['y'])
+
+    def getNextPosition(self):
+        ''' Computes and available position for 
+        placing the node. '''
+        xd, yd = self.maxXdist, self.maxYdist
+        sp = self.space
+        if xd < yd: return (xd + sp, sp)
+        else:       return (sp, yd + sp)
+
+    def nextDefaultPosition(self):
+        ''' Gets the next position under the old 
+        position algorithm '''
+        i = self.nPositions
+        self.nPositions += 1
+        sp = self.space
+        return (sp + sp*(i%10), sp + sp*(i/10))
+
+    def moveState(self, state, position):
+        ''' Updates or sets the position of a state '''
+        x,y = position
+        state.attributes['x'] = x
+        state.attributes['y'] = y
+        self.maxXdist = max(self.maxXdist, x)
+        self.maxYdist = max(self.maxYdist, y)
+
+    def recalcPositions(self):
+        ''' Recalculates the dimensions after 
+        a removal '''
+        xmax, ymax = 0, 0 # assuming positions are positive
+        for state in self.graph.states:
+            attrs = state.attributes
+            xmax = max(xmax, int(attrs['x']))
+            ymax = max(ymax, int(attrs['y']))
+        self.maxXdist = xmax
+        self.maxYdist = ymax
+
+    def setPosition(self, state):
+        ''' Sets up the position of a newly added state '''
+        attrs = state.attributes
+        if ('x' not in attrs) or ('y' not in attrs):
+            self.moveState(state, self.nextDefaultPosition())
+        else:
+            self.maxXdist = max(self.maxXdist, attrs['x'])
+            self.maxYdist = max(self.maxYdist, attrs['y'])
