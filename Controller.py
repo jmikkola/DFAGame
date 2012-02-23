@@ -164,10 +164,13 @@ class Controller:
     def setEndingState(self, widget):
         ''' Changes whether the selected state is an ending 
         (accept/final) state '''
-        self.unsavedChanges = True
         isEnding = widget.get_active()
         state = self.getCurrentState()
-        state.addAttribute('end', isEnding)
+        old_isEnding = True if state.getAttribute('end') else False
+        if isEnding != old_isEnding:
+            self.unsavedChanges = True
+            state.addAttribute('end', isEnding)
+            self.notifyListeners()
         
 
     # ----------------------------------
