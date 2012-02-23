@@ -43,7 +43,6 @@ class GraphArea(gtk.DrawingArea):
 
         # Draw transitions
         for i in xrange(npoints):
-            #fromXY = self.getPosition(i)
             fromState = graph.getState(i)
             fromXY = controller.getPosition(i)
             for (_, toState) in fromState.listTransitions():
@@ -51,13 +50,11 @@ class GraphArea(gtk.DrawingArea):
                 if i == j:
                     self.draw_loop(cr, fromXY)
                 else:
-                    #toXY = self.getPosition(j)
                     toXY = controller.getPosition(j)
                     self.draw_transition(cr, fromXY, toXY)
 
         # Draw vertices
         for i in xrange(npoints):
-            #self.draw_node(cr, self.getPosition(i), green)
             xy = controller.getPosition(i)
             self.draw_node(cr, xy, green)
 

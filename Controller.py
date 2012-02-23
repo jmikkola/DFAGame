@@ -18,7 +18,7 @@ class Controller:
         # Set up default graph to show
         if graph is None:
             graph = Graph()
-            state = graph.addState('Start state', {'start':True})
+            state = graph.addState('Start state')
             self.setPosition(state)
         self.graph = graph
         # UI-related values
@@ -161,6 +161,14 @@ class Controller:
                 return False
         return True
 
+    def setEndingState(self, widget):
+        ''' Changes whether the selected state is an ending 
+        (accept/final) state '''
+        self.unsavedChanges = True
+        isEnding = widget.get_active()
+        state = self.getCurrentState()
+        state.addAttribute('end', isEnding)
+        
 
     # ----------------------------------
     # Functions for graph display

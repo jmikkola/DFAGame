@@ -133,7 +133,7 @@ class StatePane(gtk.VBox):
         currentState = self.controller.getCurrentState()
         # Update the UI
         self.updateStateCombo(numStates)
-        self.updateStateText(currentState)
+        self.updateStateInfo(currentState)
         self.updateTrCombo(numStates)
         self.populateTransitions(currentState, graph)
         self.updating = False
@@ -148,9 +148,11 @@ class StatePane(gtk.VBox):
             self.stateCombo.append_text(s)
         self.stateCombo.set_active(self.controller.selection)
 
-    def updateStateText(self, state):
+    def updateStateInfo(self, state):
         text = state.text
         self.stateTextBuffer.set_text(text)
+        active = 1 if state.getAttribute('end') else 0
+        self.checkEndState.set_active(active)
 
     def updateTrCombo(self, numStates):
         self.trCombo.get_model().clear()
@@ -207,10 +209,15 @@ class StatePane(gtk.VBox):
         scroll.add(text)
         scroll.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
         scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        # Check-box for ending state
+        endingState = gtk.CheckButton('Ending state')
+        endingState.connect('toggled', self.controller.setEndingState)
+        self.checkEndState = endingState
         # Store
         self.stateTextBuffer = textBuffer
         self.stateText = text
         self.pack_start(scroll, False, False)
+        self.pack_start(endingState, False, False)
         self.pack_start(gtk.HSeparator(), False)
 
     def addTransitionAdd(self):
