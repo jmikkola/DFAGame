@@ -118,9 +118,9 @@ class Controller:
             filename = fileDialog(save=True)
         if filename:
             # Check for overwriting existing file
-            if path.exists(filename) and not \
-                    askYesNO('Overwrite existing file?'):
-                return False
+            if self.fileOpen is None and path.exists(filename):
+                if not askYesNO('Overwrite existing file?'):
+                    return False
             # Save file
             saveGraph(self.graph, filename)
             self.unsavedChanges = False
