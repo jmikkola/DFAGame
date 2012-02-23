@@ -39,7 +39,10 @@ class GraphArea(gtk.DrawingArea):
         controller = self.controller
         graph = controller.graph
         npoints = graph.numStates()
-        green = (0, 0.5, 0)
+
+        green = (0, 0.8, 0)
+        red   = (1, 0, 0)
+        black = (0, 0, 0)
 
         # Draw transitions
         for i in xrange(npoints):
@@ -56,7 +59,13 @@ class GraphArea(gtk.DrawingArea):
         # Draw vertices
         for i in xrange(npoints):
             xy = controller.getPosition(i)
-            self.draw_node(cr, xy, green)
+            if i == 0: 
+                color = green
+            elif graph.getState(i).getAttribute('end'):
+                color = red
+            else:
+                color = black
+            self.draw_node(cr, xy, color)
 
 
     def draw_node(self, cr, (x, y), color):
