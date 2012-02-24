@@ -178,7 +178,7 @@ class StatePane(gtk.VBox):
         cell = gtk.CellRendererText()
         self.stateCombo.pack_start(cell, True)
         self.stateCombo.add_attribute(cell, 'text', 0)
-        self.stateCombo.connect('changed', self.controller.selectState)
+        self.stateCombo.connect('changed', self.controller.selectStateListener)
         self.addBtn = iconButton(gtk.STOCK_ADD, text='Create new state')
         self.addBtn.connect('clicked', self.controller.createState)
         self.rmBtn = iconButton(gtk.STOCK_REMOVE, text='Remove')

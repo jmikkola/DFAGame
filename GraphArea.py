@@ -3,7 +3,7 @@
 import pygtk
 pygtk.require('2.0')
 import gtk, gobject, cairo
-from math import pi
+from math import pi, sqrt
 
 from Controller import *
 from Model import *
@@ -14,7 +14,39 @@ class GraphArea(gtk.DrawingArea):
     def __init__(self, controller):
         gtk.DrawingArea.__init__(self)
         self.controller = controller
+        self.stateSelected = None
+        self.dragStart = None
+        self.add_events(gtk.gdk.BUTTON_PRESS_MASK | \
+                        gtk.gdk.BUTTON_RELEASE_MASK | \
+                        gtk.gdk.POINTER_MOTION_MASK)
+        self.connect('button-press-event', self.cb_button_press)
+        self.connect('button-release-event', self.cb_button_release)
         controller.registerListener(self.queue_draw)
+
+    def cb_button_press(self, event, data):
+        if data.button == 1:
+            self.selectNode(data.x, data.y)
+
+    def cb_button_release(self, event, data):
+        pass
+
+    def selectNode(self, x, y):
+        ''' Selects the node (if any) under 
+        the mouse click '''
+        graph = self.controller.graph
+        for stateNo in xrange(graph.numStates()):
+             sx, sy = self.controller.getPosition(stateNo)
+             if self.onNode(x, y, sx, sy):
+                 self.controller.selectState(stateNo)
+                 break
+             
+
+    def onNode(self, x, y, sx, sy):
+        radius = 10
+        dx = abs(x - sx)
+        dy = abs(y - sy)
+        dist = sqrt(dx*dx + dy*dy)
+        return (dist < radius)
 
     # Handle the expose-event by drawing
     def do_expose_event(self, event):

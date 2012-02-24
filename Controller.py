@@ -70,8 +70,10 @@ class Controller:
         # Notify change
         self.notifyListeners()
 
-    def selectState(self, widget):
-        index = widget.get_active()
+    def selectStateListener(self, widget):
+        self.selectState(widget.get_active())
+
+    def selectState(self, index):
         if index >= 0 and index != self.selection:
             oldSelection = self.selection
             self.selection = index
