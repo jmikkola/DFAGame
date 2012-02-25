@@ -3,7 +3,7 @@
 import pygtk
 pygtk.require('2.0')
 import gtk, gobject, cairo
-from math import pi, sqrt, cos, sin, atan2
+from math import pi, sqrt, hypot, cos, sin, atan2
 
 from Controller import *
 from Model import *
@@ -142,6 +142,8 @@ class GraphArea(gtk.DrawingArea):
         v2 = get_vect(cx, cy, toX, toY)
         angle1 = atan2(v1[1], v1[0])
         angle2 = atan2(v2[1], v2[0])
+        # Get point where arc intersection the "to" node
+        ix, iy = get_circle_intersection(cx, cy, radius, toX, toY, self.radius)
 
         # == Drawing ==
         cr.save()
@@ -149,13 +151,14 @@ class GraphArea(gtk.DrawingArea):
         # Draw arc
         cr.arc(cx, cy, radius, angle1, angle2)
         cr.stroke()
+        cr.fill()
         cr.restore()
 
     def draw_loop(self, cr, fromXY):
         scale = self.loopSize
         cr.save()
         cr.move_to(*fromXY)
-        cr.set_source_rgb(0, 0, 0)
+        cr.set_source_rgb(0.5, 0.5, 0.5)
         cr.rel_curve_to(scale, -2*scale, scale, -3*scale, 0, -3*scale)
         cr.rel_curve_to(-scale, 0, -scale, scale, 0, 3*scale)
         cr.stroke()
@@ -163,6 +166,7 @@ class GraphArea(gtk.DrawingArea):
 
 
 def get_vect(x1, y1, x2, y2):
+    ''' Returns the vector between the two points '''
     return (x2 - x1), (y2 - y1)
 
 def get_offset_pt(x, y, vx, vy, scale):
@@ -173,3 +177,18 @@ def get_offset_pt(x, y, vx, vy, scale):
     x2, y2 = (vx * 0.5 + x), (vy * 0.5 + y)
     # result
     return (x1 + x2), (y1 + y2)
+
+def get_circle_intersection(x0, y0, r0, x1, y1, r1):
+    ''' Returns the first intersection of the circle at
+    x0, y0 with radius r0 and the circle at x1, y1 with
+    radius r1 '''
+    # Formule from http://local.wasp.uwa.edu.au/~pbourke/geometry/2circle/ 
+    d = hypot(x1 - x0, y1 - y0)
+    a = (r0**2 - r1**2 + d**2) / (2 * d)
+    h = sqrt(r0**2 - a**2)
+    x2 = x0 + (x1 - x0) * a/d
+    y2 = y0 + (y1 - y0) * a/d
+    x = x2 + (y1 - y0) * h/d
+    y = y2 - (x1 - x0) * h/d
+    return x, y
+    
