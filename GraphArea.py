@@ -3,7 +3,7 @@
 import pygtk
 pygtk.require('2.0')
 import gtk, gobject, cairo
-from math import pi, sqrt
+from math import pi, sqrt, cos, sin, atan2
 
 from Controller import *
 from Model import *
@@ -23,6 +23,7 @@ class GraphArea(gtk.DrawingArea):
         self.radius = 10
         self.minDragDist = 5
         self.loopSize = 10
+        self.arcSize = 0.8
         # Information for dragging nodes
         self.stateSelected = None
         self.dragStart = None
@@ -130,11 +131,23 @@ class GraphArea(gtk.DrawingArea):
         cr.fill()
         cr.restore()
 
-    def draw_transition(self, cr, fromXY, toXY):
+    def draw_transition(self, cr, (fromX, fromY), (toX, toY)):
+        # == Math ==
+        # Get arc center & radius
+        vx, vy = get_vect(fromX, fromY, toX, toY)
+        cx, cy = get_offset_pt(fromX, fromY, vx, vy, self.arcSize)
+        radius = distance(cx, cy, fromX, fromY)
+        # Get starting & ending angles
+        v1 = get_vect(cx, cy, fromX, fromY)
+        v2 = get_vect(cx, cy, toX, toY)
+        angle1 = atan2(v1[1], v1[0])
+        angle2 = atan2(v2[1], v2[0])
+
+        # == Drawing ==
         cr.save()
-        cr.set_source_rgb(0, 0, 0)
-        cr.move_to(*fromXY)
-        cr.line_to(*toXY)
+        cr.set_source_rgb(0.5, 0.5, 0.5)
+        # Draw arc
+        cr.arc(cx, cy, radius, angle1, angle2)
         cr.stroke()
         cr.restore()
 
@@ -148,3 +161,15 @@ class GraphArea(gtk.DrawingArea):
         cr.stroke()
         cr.restore()
 
+
+def get_vect(x1, y1, x2, y2):
+    return (x2 - x1), (y2 - y1)
+
+def get_offset_pt(x, y, vx, vy, scale):
+    ''' Calculates a point offset from a line '''
+    # 90 degree rotation & scale
+    x1, y1 = -vy * scale, vx * scale
+    # Midpoint of vector
+    x2, y2 = (vx * 0.5 + x), (vy * 0.5 + y)
+    # result
+    return (x1 + x2), (y1 + y2)
