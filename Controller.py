@@ -13,7 +13,7 @@ class Controller:
         # Graph display values
         self.maxXdist = 0
         self.maxYdist = 0
-        self.space = 20
+        self.space = 50
         self.nPositions = 0
         # Set up default graph to show
         if graph is None:
@@ -201,7 +201,13 @@ class Controller:
         sp = self.space
         return (sp + sp*(i%10), sp + sp*(i/10))
 
-    def moveState(self, state, position):
+    def moveState(self, stateNo, position):
+        self.unsavedChanges = True
+        state = self.graph.getState(stateNo)
+        self.setStatePosition(state, position)
+        self.notifyListeners()
+
+    def setStatePosition(self, state, position):
         ''' Updates or sets the position of a state '''
         x,y = position
         state.attributes['x'] = x
@@ -224,7 +230,7 @@ class Controller:
         ''' Sets up the position of a newly added state '''
         attrs = state.attributes
         if ('x' not in attrs) or ('y' not in attrs):
-            self.moveState(state, self.nextDefaultPosition())
+            self.setStatePosition(state, self.nextDefaultPosition())
         else:
             self.maxXdist = max(self.maxXdist, attrs['x'])
             self.maxYdist = max(self.maxYdist, attrs['y'])

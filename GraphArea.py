@@ -21,6 +21,8 @@ class GraphArea(gtk.DrawingArea):
         self.controller = controller
         # Settings
         self.radius = 10
+        self.minDragDist = 5
+        self.loopSize = 10
         # Information for dragging nodes
         self.stateSelected = None
         self.dragStart = None
@@ -44,8 +46,11 @@ class GraphArea(gtk.DrawingArea):
     def cb_button_release(self, event, data):
         ''' Handle the end of a mouse button press on the 
         graph area '''
-        if self.stateSelected is not None:
-            print "end of drag of state", self.stateSelected
+        stateNo = self.stateSelected
+        if stateNo is not None:
+            x, y = data.x, data.y
+            if distance(x, y, *self.dragStart) >= self.minDragDist:
+                self.controller.moveState(stateNo, (x,y))
 
     def selectNode(self, x, y):
         ''' Selects the node (if any) under 
@@ -113,7 +118,7 @@ class GraphArea(gtk.DrawingArea):
     def draw_node(self, cr, (x, y), color):
         cr.save()
         cr.set_source_rgb(*color)
-        cr.arc(x, y, 5, 0, 2 * pi)
+        cr.arc(x, y, self.radius, 0, 2 * pi)
         cr.fill()
         cr.restore()
 
@@ -125,14 +130,13 @@ class GraphArea(gtk.DrawingArea):
         cr.stroke()
         cr.restore()
 
-    def draw_loop(self, cr, fromXY, scale=5):
+    def draw_loop(self, cr, fromXY):
+        scale = self.loopSize
         cr.save()
         cr.move_to(*fromXY)
-        cr.set_source_rgb(0, 0, 1)
+        cr.set_source_rgb(0, 0, 0)
         cr.rel_curve_to(scale, -2*scale, scale, -3*scale, 0, -3*scale)
         cr.rel_curve_to(-scale, 0, -scale, scale, 0, 3*scale)
         cr.stroke()
         cr.restore()
 
-    def getPosition(self, i):
-        return 20 + 20*(i%10), 20 + 20*(i/10)
