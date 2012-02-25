@@ -35,6 +35,10 @@ class GraphArea(gtk.DrawingArea):
         # Set this to be re-rendered upon a state update
         controller.registerListener(self.queue_draw)
 
+    # ----------------------------------
+    # Functions for event handling
+    # ----------------------------------
+
     def cb_button_press(self, event, data):
         ''' Handle a mouse button press on the graph area '''
         if data.button == 1:
@@ -63,6 +67,10 @@ class GraphArea(gtk.DrawingArea):
                  return stateNo
         return None
              
+    # ----------------------------------
+    # Functions for drawing
+    # ----------------------------------
+
     # Handle the expose-event by drawing
     def do_expose_event(self, event):
         # Create the cairo context
