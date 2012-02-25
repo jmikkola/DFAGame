@@ -8,27 +8,44 @@ from math import pi, sqrt
 from Controller import *
 from Model import *
 
+def distance(x1, y1, x2, y2):
+    dx = abs(x1 - x2)
+    dy = abs(y1 - y2)
+    return sqrt(dx*dx + dy*dy)
+
 class GraphArea(gtk.DrawingArea):
     __gsignals__ = { "expose-event": "override" }
 
     def __init__(self, controller):
         gtk.DrawingArea.__init__(self)
         self.controller = controller
+        # Settings
+        self.radius = 10
+        # Information for dragging nodes
         self.stateSelected = None
         self.dragStart = None
+        # Setup clicking on the graph
         self.add_events(gtk.gdk.BUTTON_PRESS_MASK | \
                         gtk.gdk.BUTTON_RELEASE_MASK | \
                         gtk.gdk.POINTER_MOTION_MASK)
         self.connect('button-press-event', self.cb_button_press)
         self.connect('button-release-event', self.cb_button_release)
+        # Set this to be re-rendered upon a state update
         controller.registerListener(self.queue_draw)
 
     def cb_button_press(self, event, data):
+        ''' Handle a mouse button press on the graph area '''
         if data.button == 1:
-            self.selectNode(data.x, data.y)
+            self.stateSelected = self.selectNode(data.x, data.y)
+            self.dragStart = (data.x, data.y)
+        else:
+            self.stateSelected = None
 
     def cb_button_release(self, event, data):
-        pass
+        ''' Handle the end of a mouse button press on the 
+        graph area '''
+        if self.stateSelected is not None:
+            print "end of drag of state", self.stateSelected
 
     def selectNode(self, x, y):
         ''' Selects the node (if any) under 
@@ -36,18 +53,11 @@ class GraphArea(gtk.DrawingArea):
         graph = self.controller.graph
         for stateNo in xrange(graph.numStates()):
              sx, sy = self.controller.getPosition(stateNo)
-             if self.onNode(x, y, sx, sy):
+             if distance(x, y, sx, sy) <= self.radius:
                  self.controller.selectState(stateNo)
-                 break
+                 return stateNo
+        return None
              
-
-    def onNode(self, x, y, sx, sy):
-        radius = 10
-        dx = abs(x - sx)
-        dy = abs(y - sy)
-        dist = sqrt(dx*dx + dy*dy)
-        return (dist < radius)
-
     # Handle the expose-event by drawing
     def do_expose_event(self, event):
         # Create the cairo context
