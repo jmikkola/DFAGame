@@ -22,7 +22,6 @@ class GraphArea(gtk.DrawingArea):
         # Settings
         self.radius = 10
         self.minDragDist = 5
-        self.loopSize = 10
         self.arcSize = 0.8
         self.arrowLength = 10
         self.arrowAngle = pi/6
@@ -177,13 +176,19 @@ class GraphArea(gtk.DrawingArea):
         cr.line_to(x2, y2)
         cr.stroke()
 
-    def draw_loop(self, cr, fromXY):
-        scale = self.loopSize
+    def draw_loop(self, cr, (x, y)):
+        r = self.radius
+        theta = 3*pi/8
+        dx, dy = r * cos(theta), -r * sin(theta)
+        startx, starty = x + dx, y + dy
+        end_dx, end_dy = -2 * dx, 0
+        cp1x, cp1y = 3 * dx, 3 * dy
+        cp2x, cp2y = -2 * dx - cp1x, cp1y
+
         cr.save()
-        cr.move_to(*fromXY)
         cr.set_source_rgb(0, 0, 0)
-        cr.rel_curve_to(scale, -2*scale, scale, -3*scale, 0, -3*scale)
-        cr.rel_curve_to(-scale, 0, -scale, scale, 0, 3*scale)
+        cr.move_to(startx, starty)
+        cr.rel_curve_to(cp1x, cp1y, cp2x, cp2y, end_dx, end_dy)
         cr.stroke()
         cr.restore()
 
