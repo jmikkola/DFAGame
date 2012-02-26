@@ -77,6 +77,11 @@ class WindowMenu(gtk.MenuBar):
         self.fileMenu = self.makeFileMenu()
         self.editMenu = self.makeEditMenu()
         self.playMenu = self.makePlayMenu()
+        controller.registerListener(self.update)
+
+    def update(self):
+        if self.controller.isPlaying:
+            pass
 
     def makeFileMenu(self):
         mi = gtk.MenuItem('File')
@@ -105,6 +110,10 @@ class WindowMenu(gtk.MenuBar):
     def makePlayMenu(self):
         mi = gtk.MenuItem('Play')
         menu = gtk.Menu()
+        miStartGame = gtk.MenuItem('Start game')
+        miStartGame.connect_object(
+            'activate', self.controller.startGame, 'play.startgame')
+        menu.add(miStartGame)
         mi.set_submenu(menu)
         self.add(mi)
         return mi

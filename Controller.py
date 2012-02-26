@@ -26,6 +26,7 @@ class Controller:
         self.fileOpen = None
         self.unsavedChanges = False
         self.notifying = False
+        self.isPlaying = False
         # Set up listeners
         self.listeners = []
 
@@ -234,3 +235,11 @@ class Controller:
         else:
             self.maxXdist = max(self.maxXdist, attrs['x'])
             self.maxYdist = max(self.maxYdist, attrs['y'])
+        
+
+    # ----------------------------------
+    # Functions for demoing the game
+    # ----------------------------------
+
+    def startGame(self, menu):
+        print "startGame called by", menu
