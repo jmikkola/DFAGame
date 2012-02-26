@@ -94,6 +94,8 @@ class GraphArea(gtk.DrawingArea):
         self.draw_graph(cr)
 
     def draw_graph(self, cr):
+        cr.set_line_width(1)
+
         controller = self.controller
         graph = controller.graph
         npoints = graph.numStates()
