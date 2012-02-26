@@ -242,4 +242,11 @@ class Controller:
     # ----------------------------------
 
     def startGame(self, menu):
-        print "startGame called by", menu
+        # Don't allow to instances at once
+        if self.isPlaying:
+            return
+        self.isPlaying = True
+        # PlayWindow will set isPlaying back to False
+        # when it closes (PlayWindow.delete_event())
+        PlayWindow(self)
+        

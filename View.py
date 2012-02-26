@@ -70,6 +70,20 @@ def askUnsavedChanges(quitting):
         response = 2 # default to Cancel
     return response
 
+class PlayWindow(gtk.Window):
+    ''' This is a window for demoing the game '''
+
+    def __init__(self, controller):
+        gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+        self.connect('delete_event', self.delete_event)
+        self.connect('destroy', lambda w: 0)
+        self.show_all()
+        self.controller = controller
+
+    def delete_event(self, widget, event, data=None):
+        self.controller.isPlaying = False
+        return False
+
 class WindowMenu(gtk.MenuBar):
     def __init__(self, controller):
         gtk.MenuBar.__init__(self)
