@@ -75,10 +75,45 @@ class PlayWindow(gtk.Window):
 
     def __init__(self, controller):
         gtk.Window.__init__(self, gtk.WINDOW_TOPLEVEL)
+        self.controller = controller
+
         self.connect('delete_event', self.delete_event)
         self.connect('destroy', lambda w: 0)
+        self.add_content()
+        self.set_title('Preview game')
         self.show_all()
-        self.controller = controller
+        self.connect('focus-in-event', lambda w, e: self.entry.grab_focus())
+
+        self.update()
+
+    def add_content(self):
+        vb = gtk.VBox(False, 0)
+        vb.set_size_request(400, 400)
+        
+        # Set up text view
+        text = gtk.TextView()
+        text.set_editable(False)
+        #text.set_wrap_mode(gtk.WRAP_CHAR)
+        textBuffer = text.get_buffer()
+        vb.pack_start(text, padding=5)
+
+        # Set up the text entry
+        entry = gtk.Entry()
+        entry.connect('activate', self.select_option)
+        vb.pack_start(entry, False, padding=5)
+
+        self.textBuffer = textBuffer
+        self.entry = entry
+        self.add(vb)
+
+    def update(self):
+        # TODO: get text for state, add to buffer
+        self.entry.set_text('')
+        self.entry.grab_focus()
+
+    def select_option(self, widget, data=None):
+        # TODO: check if valid, then switch state
+        pass
 
     def delete_event(self, widget, event, data=None):
         self.controller.isPlaying = False

@@ -246,7 +246,14 @@ class Controller:
         if self.isPlaying:
             return
         self.isPlaying = True
-        # PlayWindow will set isPlaying back to False
-        # when it closes (PlayWindow.delete_event())
+        # isPlaying gets set back to False by PlayWindow.delete_event()
+        
+        # Unless the game will start from the selected
+        # state, move to the start state
+        if menu != 'play.startfrom':
+            self.selected = 0
+            self.notifyListeners()
+
+        # Show window
         PlayWindow(self)
         
