@@ -10,20 +10,19 @@ This allows building a DFA representing a simple game.
 ### Graph rendering
 
 + Display vertices
-  + Show current selection
-  + Show their number?
-  + Lay out - user specified, automatic for new points
-+ Draw edges
-  + Arrows
-+ Make verices clickable
+  + Highlight current selection
+  + Display state numbers on the state?
   
 ### UI work
+
++ Add window for playing the game
 
 + Create menu bar
   + File menu: open, new, save, save as, close
   + Edit menu: undo, redo
   + Game menu: play, play from selected, check for errors
   
++ Disable game modifications while playing game  
 + 'Add' button to add transitions should not work if there is no transition text
 + Button for removing states should not work if state selected is the start state
 + Button to add transitions should warn on over-writing existing transition
@@ -38,16 +37,9 @@ This allows building a DFA representing a simple game.
   + Inescapable loops
   
 + Connect actions in view to logic
-  + Selecting a state via the graph
   + Undoing
   + Redoing
-  + Closing
 
-+ Create file handling logic
-  + Ask about saving changes
-	+ when exiting or when opening a new file
-	+ for open file with unsaved changes, or game not saved to a file
-  
 + Create undo / redo logic
   + Must update state of unsavedChanges.  
 	Mark a undo entry as the one representing what is saved on disk?
