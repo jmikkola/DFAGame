@@ -190,6 +190,7 @@ class GraphArea(gtk.DrawingArea):
         cr.move_to(startx, starty)
         cr.rel_curve_to(cp1x, cp1y, cp2x, cp2y, end_dx, end_dy)
         cr.stroke()
+        self.draw_arrow(cr, startx, starty, -theta)
         cr.restore()
 
 
