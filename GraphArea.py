@@ -24,6 +24,8 @@ class GraphArea(gtk.DrawingArea):
         self.minDragDist = 5
         self.loopSize = 10
         self.arcSize = 0.8
+        self.arrowLength = 10
+        self.arrowAngle = pi/6
         # Information for dragging nodes
         self.stateSelected = None
         self.dragStart = None
@@ -143,22 +145,41 @@ class GraphArea(gtk.DrawingArea):
         angle1 = atan2(v1[1], v1[0])
         angle2 = atan2(v2[1], v2[0])
         # Get point where arc intersection the "to" node
-        ix, iy = get_circle_intersection(cx, cy, radius, toX, toY, self.radius)
+        ix, iy = get_circle_intersection(cx, cy, radius, \
+                                         toX, toY, self.radius)
+        # Get angle of the arc where it intersects the node
+        cix, ciy = get_vect(ix, iy, cx, cy)
+        intersectAngle = atan2(ciy, cix) + pi/2
 
         # == Drawing ==
         cr.save()
-        cr.set_source_rgb(0.5, 0.5, 0.5)
+        cr.set_source_rgb(0, 0, 0)
         # Draw arc
         cr.arc(cx, cy, radius, angle1, angle2)
         cr.stroke()
-        cr.fill()
+        # Draw arrow
+        self.draw_arrow(cr, ix, iy, intersectAngle)
         cr.restore()
+
+    def draw_arrow(self, cr, x, y, angle):
+        size = self.arrowLength
+        theta = self.arrowAngle
+        x1 = x + size * cos(angle + theta)
+        y1 = y + size * sin(angle + theta)
+        x2 = x + size * cos(angle - theta)
+        y2 = y + size * sin(angle - theta)
+        cr.move_to(x, y)
+        cr.line_to(x1, y1)
+        cr.stroke()
+        cr.move_to(x, y)
+        cr.line_to(x2, y2)
+        cr.stroke()
 
     def draw_loop(self, cr, fromXY):
         scale = self.loopSize
         cr.save()
         cr.move_to(*fromXY)
-        cr.set_source_rgb(0.5, 0.5, 0.5)
+        cr.set_source_rgb(0, 0, 0)
         cr.rel_curve_to(scale, -2*scale, scale, -3*scale, 0, -3*scale)
         cr.rel_curve_to(-scale, 0, -scale, scale, 0, 3*scale)
         cr.stroke()
