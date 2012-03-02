@@ -146,6 +146,7 @@ class Controller:
         self.fileOpen = filename
         for state in self.graph.states:
             self.setPosition(state)
+        self.selection = 0
         self.notifyListeners()
 
     def checkClose(self, quitting=True):
