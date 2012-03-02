@@ -30,6 +30,16 @@ def fileDialog(save=False, folder=None):
     dialog.set_default_response(gtk.RESPONSE_OK)
     dialog.set_current_folder(folder)
 
+    # Set the filters
+    gameFilter = gtk.FileFilter()
+    gameFilter.set_name('Game files')
+    gameFilter.add_pattern('*.game')
+    dialog.add_filter(gameFilter)
+    allFilter = gtk.FileFilter()
+    allFilter.add_pattern('*')
+    allFilter.set_name('All files')
+    dialog.add_filter(allFilter)
+
     # Show dialog & get result
     response = dialog.run()
     if response == gtk.RESPONSE_OK:
