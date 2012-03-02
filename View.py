@@ -9,12 +9,15 @@ from Controller import *
 from Model import *
 from GraphArea import *
 
-def fileDialog(save=False):
+def fileDialog(save=False, folder=None):
     filename = None
     if save:
         action = gtk.FILE_CHOOSER_ACTION_SAVE
     else:
         action = gtk.FILE_CHOOSER_ACTION_OPEN
+
+    if not folder:
+        folder = 'samples/'
 
     # Set up dialog
     dialog = gtk.FileChooserDialog(
@@ -25,6 +28,7 @@ def fileDialog(save=False):
                    gtk.STOCK_OPEN,
                    gtk.RESPONSE_OK))
     dialog.set_default_response(gtk.RESPONSE_OK)
+    dialog.set_current_folder(folder)
 
     # Show dialog & get result
     response = dialog.run()
