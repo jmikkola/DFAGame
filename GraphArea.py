@@ -103,6 +103,10 @@ class GraphArea(gtk.DrawingArea):
         red   = (1, 0, 0)
         black = (0, 0, 0)
 
+        # Show current selection
+        x, y = controller.getPosition(controller.selection)
+        self.draw_selection(cr, x, y)
+
         # Draw transitions
         for i in xrange(npoints):
             fromState = graph.getState(i)
@@ -125,6 +129,13 @@ class GraphArea(gtk.DrawingArea):
             else:
                 color = black
             self.draw_node(cr, xy, color)
+
+    def draw_selection(self, cr, x, y):
+        cr.save()
+        cr.set_source_rgb(0.8, 0.8, 1.0)
+        cr.arc(x, y, self.radius + 4, 0, 2*pi)
+        cr.fill()
+        cr.restore()
 
 
     def draw_node(self, cr, (x, y), color):
