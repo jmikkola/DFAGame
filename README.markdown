@@ -10,7 +10,6 @@ This allows building a DFA representing a simple game.
 ### Graph rendering
 
 + Display vertices
-  + Highlight current selection
   + Display state numbers on the state?
   
 ### UI work
@@ -18,8 +17,6 @@ This allows building a DFA representing a simple game.
 + Add window for playing the game
 
 + Create menu bar
-  + File menu: open, new, save, save as, close
-  + Edit menu: undo, redo
   + Game menu: play, play from selected, check for errors
   
 + Disable game modifications while playing game  
