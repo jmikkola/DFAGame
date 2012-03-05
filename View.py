@@ -212,7 +212,7 @@ class WindowMenu(gtk.MenuBar):
         menu.add(miSaveAs)
         # "Quit"
         miQuit = gtk.MenuItem('Quit')
-        miQuit.connect_object (
+        miQuit.connect_object(
             'activate', self.controller.exit, 'file.quit')
         menu.add(miQuit)
         # Putting it together
@@ -221,13 +221,18 @@ class WindowMenu(gtk.MenuBar):
         return mi
 
     def makeEditMenu(self):
+        ctr = self.controller
         mi = gtk.MenuItem('Edit')
         menu = gtk.Menu()
         # "Undo"
         miUndo = gtk.MenuItem('Undo')
+        miUndo.connect_object(
+            'activate', ctr.undo, 'edit.undo')
         menu.add(miUndo)
         # "Redo"
         miRedo = gtk.MenuItem('Redo')
+        miRedo.connect_object(
+            'activate', ctr.redo, 'edit.redo')
         menu.add(miRedo)
         # Putting it together
         mi.set_submenu(menu)

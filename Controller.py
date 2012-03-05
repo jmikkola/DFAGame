@@ -125,6 +125,12 @@ class Controller:
         self.graph.removeTransition(start, command)
         self.notifyListeners()
 
+    def undo(self, menu):
+        print menu
+
+    def redo(self, menu):
+        print menu
+
 
     # ----------------------------------
     # Functions for file handling
