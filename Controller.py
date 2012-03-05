@@ -30,6 +30,17 @@ class Controller:
         # Set up listeners
         self.listeners = []
 
+    def main(self):
+        ''' This method starts the program '''
+        self.window = BuilderWindow(self)
+        # Transfer control to GTK event loop
+        gtk.main()
+
+    def exit(self, event):
+        ''' Exit the program '''
+        if self.checkClose():
+            gtk.main_quit()
+
     # ----------------------------------
     # Functions regarding updating state
     # (i.e. observer pattern)

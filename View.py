@@ -199,6 +199,8 @@ class WindowMenu(gtk.MenuBar):
             'activate', self.controller.saveGame, 'file.save')
         menu.add(miSave)
         miQuit = gtk.MenuItem('Quit')
+        miQuit.connect_object (
+            'activate', self.controller.exit, 'file.quit')
         menu.add(miQuit)
         mi.set_submenu(menu)
         self.add(mi)
@@ -450,11 +452,8 @@ def iconButton(stock_id, text=None):
 
 def main():
     ''' This method starts the program '''
-    # TODO: parse any args here
     controller = Controller()
-    builder = BuilderWindow(controller)
-    # Transfer control to GTK event loop
-    gtk.main()
+    controller.main()
 
 if __name__ == '__main__':
     main()
