@@ -223,6 +223,13 @@ class WindowMenu(gtk.MenuBar):
     def makeEditMenu(self):
         mi = gtk.MenuItem('Edit')
         menu = gtk.Menu()
+        # "Undo"
+        miUndo = gtk.MenuItem('Undo')
+        menu.add(miUndo)
+        # "Redo"
+        miRedo = gtk.MenuItem('Redo')
+        menu.add(miRedo)
+        # Putting it together
         mi.set_submenu(menu)
         self.add(mi)
         return mi
