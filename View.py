@@ -190,18 +190,27 @@ class WindowMenu(gtk.MenuBar):
     def makeFileMenu(self):
         mi = gtk.MenuItem('File')
         menu = gtk.Menu()
+        # "Open"
         miOpen = gtk.MenuItem('Open')
         miOpen.connect_object(
             'activate', self.controller.openGame, 'file.open')
         menu.add(miOpen)
+        # "Save"
         miSave = gtk.MenuItem('Save')
         miSave.connect_object(
             'activate', self.controller.saveGame, 'file.save')
         menu.add(miSave)
+        # Save as
+        miSaveAs = gtk.MenuItem('Save as')
+        miSaveAs.connect_object(
+            'activate', self.controller.saveGame, 'file.saveas')
+        menu.add(miSaveAs)
+        # "Quit"
         miQuit = gtk.MenuItem('Quit')
         miQuit.connect_object (
             'activate', self.controller.exit, 'file.quit')
         menu.add(miQuit)
+        # Putting it together
         mi.set_submenu(menu)
         self.add(mi)
         return mi
