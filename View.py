@@ -195,6 +195,11 @@ class WindowMenu(gtk.MenuBar):
         miOpen.connect_object(
             'activate', self.controller.openGame, 'file.open')
         menu.add(miOpen)
+        # "New"
+        miNew = gtk.MenuItem('New')
+        miNew.connect_object(
+            'activate', self.controller.newGame, 'file.new')
+        menu.add(miNew)
         # "Save"
         miSave = gtk.MenuItem('Save')
         miSave.connect_object(

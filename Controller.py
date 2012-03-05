@@ -9,26 +9,31 @@ class Controller:
     view and the model, and keeps some
     state for the UI. '''
 
-    def __init__(self, graph=None):
+    def __init__(self):
+        # Set up default graph to show
+        self.resetGraph()
+        # UI-related values
+        self.notifying = False
+        self.isPlaying = False
+        # Set up listeners
+        self.listeners = []
+
+    def resetGraph(self):
+        ''' Reset to a new graph '''
         # Graph display values
         self.maxXdist = 0
         self.maxYdist = 0
         self.space = 50
         self.nPositions = 0
-        # Set up default graph to show
-        if graph is None:
-            graph = Graph()
-            state = graph.addState('Start state')
-            self.setPosition(state)
-        self.graph = graph
-        # UI-related values
         self.selection = 0
+        # File state
         self.fileOpen = None
         self.unsavedChanges = False
-        self.notifying = False
-        self.isPlaying = False
-        # Set up listeners
-        self.listeners = []
+        # Graph
+        self.graph = Graph()
+        state = self.graph.addState('Start state')
+        self.setPosition(state)
+
 
     def main(self):
         ''' This method starts the program '''
@@ -141,9 +146,15 @@ class Controller:
             return True
         return False
 
+    def newGame(self, menu):
+        if not self.checkClose(False):
+            return
+        self.resetGraph()
+        self.notifyListeners()
+
     def openGame(self, menu):
         # Check for unsaved changes
-        if self.unsavedChanges and not self.checkClose(False):
+        if not self.checkClose(False):
             return
         # Open the file
         filename = fileDialog()
