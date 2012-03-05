@@ -235,12 +235,23 @@ class WindowMenu(gtk.MenuBar):
         return mi
 
     def makePlayMenu(self):
+        ctr = self.controller
         mi = gtk.MenuItem('Play')
         menu = gtk.Menu()
+        # "Start game"
         miStartGame = gtk.MenuItem('Start game')
         miStartGame.connect_object(
-            'activate', self.controller.startGame, 'play.startgame')
+            'activate', ctr.startGame, 'play.startgame')
         menu.add(miStartGame)
+        # "Start from selected"
+        miStartSelected = gtk.MenuItem('Start from selected')
+        miStartSelected.connect_object(
+            'activate', ctr.startGame, 'play.startselected')
+        menu.add(miStartSelected)
+        # "Check for errors"
+        miCheckGame = gtk.MenuItem('Check for errors')
+        menu.add(miCheckGame)
+        # Putting it together
         mi.set_submenu(menu)
         self.add(mi)
         return mi

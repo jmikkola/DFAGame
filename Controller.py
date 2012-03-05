@@ -273,7 +273,7 @@ class Controller:
         
         # Unless the game will start from the selected
         # state, move to the start state
-        if menu != 'play.startfrom':
+        if menu != 'play.startselected':
             self.selection = 0
             self.notifyListeners()
 
