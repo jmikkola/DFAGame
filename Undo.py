@@ -22,7 +22,6 @@ class Undo:
         ''' Store the data to reverse a change '''
         self.undo_stack.append(item)
         self.undo_depth += 1
-        print "pushed history:", item
 
     def undo(self):
         ''' Undo a change. Returns the stored state. '''

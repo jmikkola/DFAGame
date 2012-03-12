@@ -44,6 +44,7 @@ class State:
             if s == state: toRemove.append(cmd)
         for cmd in toRemove:
             del self.transitions[cmd]
+        return toRemove
                 
     def __str__(self):
         s = self.text + "@" + str(x) + ',' + str(y) + " : {"
@@ -96,9 +97,17 @@ class Graph:
 
     def removeState(self, index):
         ''' Removes a state by index from the graph '''
-        state = self.states.pop(index)
-        for s in self.states:
-            s.removeConnections(state)
+        state = self.states[index]
+        removed = []
+        for (i, s) in enumerate(self.states):
+            if i == index: 
+                continue
+            commands = s.removeConnections(state)
+            for c in commands:
+                removed.append( (i, c) )
+        self.states.pop(index)
+        return removed
+            
 
     def addTransition(self, start, end, command):
         ''' Adds a transition from the start state to the

@@ -39,12 +39,7 @@ This allows building a DFA representing a simple game.
   + Unreachable states
   + Inescapable loops
   
-+ Connect actions in view to logic
-  + Undoing
-  + Redoing
-
 + Create undo / redo logic
-  + Must update state of unsavedChanges.  
-	Mark a undo entry as the one representing what is saved on disk?
   + Should be efficient with regards to text updates
+  + Add redo logic
   

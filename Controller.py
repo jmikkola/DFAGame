@@ -114,12 +114,13 @@ class Controller:
         graph = self.graph
         if num is 0: return
         self.unsavedChanges = True
-        # Store undo history
-        hist = (num, 'removed', graph.serializeState(num))
-        self.history.pushHistory(hist)
         # Make change
-        graph.removeState(num)
+        serialized = graph.serializeState(num)
+        removed = graph.removeState(num)
         self.selection -= 1
+        #  undo history
+        hist = (num, 'removed', serialized, removed)
+        self.history.pushHistory(hist)
         # Update
         self.recalcPositions()
         self.notifyListeners()
@@ -184,6 +185,9 @@ class Controller:
     def undo(self, menu):
         # Get the undo history
         item = self.history.undo()
+        if item is None:
+            return
+        
         num = item[0]
         kind = item[1]
         graph = self.graph
@@ -195,11 +199,13 @@ class Controller:
                 self.selection -= 1
         elif kind == 'removed':
             s = item[2]
-            state = graph.addState(s['state'], s['x'], s['y'])
-            state.end = s['end']
+            state = State(s['state'], None, s['x'], s['y'], s['end'])
+            graph.states.insert(num, state)
             for cmd, n in s['transitions'].iteritems():
                 state.addTransition(cmd, graph.getState(n))
-            # TODO: store & add back transitions _TO_ this state...
+            incoming = item[3]
+            for n, cmd in incoming:
+                graph.getState(n).addTransition(cmd, state)
         elif kind == 'text':
             state = graph.getState(num)
             state.text = item[2]
