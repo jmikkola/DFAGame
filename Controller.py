@@ -2,6 +2,7 @@
 from os import path
 
 from Model import *
+from Undo import *
 from View import *
 
 class Controller:
@@ -29,10 +30,13 @@ class Controller:
         # File state
         self.fileOpen = None
         self.unsavedChanges = False
+        # Undo state
+        self.history = Undo()
         # Graph
         self.graph = Graph()
         state = self.graph.addState('Start state')
         self.setPosition(state)
+
 
 
     def main(self):
@@ -62,7 +66,6 @@ class Controller:
         # trying to hit this at the same time:
         if self.notifying: return
         self.notifying = True
-        #print json.dumps(self.graph.toSerializable(), indent=4)
         for function in self.listeners:
             function()
         self.notifying = False
@@ -80,53 +83,107 @@ class Controller:
     # ----------------------------------
 
     def createState(self, widget):
+        ''' Creates a new state and selects it '''
         self.unsavedChanges = True
+        # Make change
         state = self.graph.addState()
         self.selection = self.graph.numStates() - 1
+        # Store undo history
+        hist = (self.selection, 'added')
+        self.history.pushHistory(hist)
+        # Update
         self.setPosition(state)
-        # Notify change
         self.notifyListeners()
 
     def selectStateListener(self, widget):
+        ''' Call back for widgets that change the 
+        selection '''
         self.selectState(widget.get_active())
 
     def selectState(self, index):
+        ''' Changes the current selection '''
         if index >= 0 and index != self.selection:
             oldSelection = self.selection
             self.selection = index
             self.notifyListeners()
 
     def removeState(self, widget):
-        if self.selection is 0: return
+        ''' Removes the selected state (if it is not the 
+        state state) '''
+        num = self.selection
+        graph = self.graph
+        if num is 0: return
         self.unsavedChanges = True
-        self.graph.removeState(self.selection)
+        # Store undo history
+        hist = (num, 'removed', graph.serializeState(num))
+        self.history.pushHistory(hist)
+        # Make change
+        graph.removeState(num)
         self.selection -= 1
+        # Update
         self.recalcPositions()
         self.notifyListeners()
 
     def updateStateText(self, widget):
+        ''' Changes the text of the current state '''
         self.unsavedChanges = True
+        # Store undo history
+        state = self.getCurrentState()
+        hist = (self.selection, 'text', state.text)
+        self.history.pushHistory(hist)
+        # Make change
         text = widget.get_text(widget.get_start_iter(), \
                                widget.get_end_iter())
-        self.graph.getState(self.selection).text = text
+        state.text = text
         # No re-draw needed
 
     def createTransition(self, widget, data):
+        ''' Creates a new transition from the current state '''
+        # TODO: disallow overwriting transitions
         self.unsavedChanges = True
+        # Get info
         command, endNo = data
         start = self.getCurrentState()
         end = self.graph.getState(endNo)
+        # Store undo history
+        hist = (self.selection, 'addtr', command)
+        self.history.pushHistory(hist)
+        # Make change & update
         self.graph.addTransition(start, end, command)
         self.notifyListeners()
 
     def removeTransition(self, widget, command):
+        ''' Removes a transition from the selected state '''
         self.unsavedChanges = True
         start = self.getCurrentState()
+        # Store undo history
+        to = self.graph.getIndex(start.getTransition(command))
+        hist = (self.selection, 'rmtr', command, to)
+        self.history.pushHistory(hist)
+        # Make change & update
         self.graph.removeTransition(start, command)
         self.notifyListeners()
 
+    def setEndingState(self, widget):
+        ''' Changes whether the selected state is an ending 
+        (accept/final) state '''
+        # Get info
+        isEnding = widget.get_active()
+        state = self.getCurrentState()
+        old_isEnding = state.end
+        # Only update if different
+        if isEnding != old_isEnding:
+            self.unsavedChanges = True
+            # Store undo history
+            hist = (self.selection, 'end', old_isEnding)
+            self.history.pushHistory(hist)
+            # Make change & update
+            state.end = isEnding
+            self.notifyListeners()
+
     def undo(self, menu):
-        print menu
+        item = self.history.undo()
+        print item
 
     def redo(self, menu):
         print menu
@@ -175,6 +232,7 @@ class Controller:
         for state in self.graph.states:
             self.setPosition(state)
         self.selection = 0
+        self.undo = Undo()
         self.notifyListeners()
 
     def checkClose(self, quitting=True):
@@ -192,17 +250,6 @@ class Controller:
             if not self.saveGame('quit'):
                 return False
         return True
-
-    def setEndingState(self, widget):
-        ''' Changes whether the selected state is an ending 
-        (accept/final) state '''
-        isEnding = widget.get_active()
-        state = self.getCurrentState()
-        old_isEnding = state.end
-        if isEnding != old_isEnding:
-            self.unsavedChanges = True
-            state.end = isEnding
-            self.notifyListeners()
         
 
     # ----------------------------------
@@ -218,17 +265,24 @@ class Controller:
         else:       return (sp, yd + sp)
 
     def moveState(self, stateNo, position):
+        ''' Moves a state (use for UI events) '''
         self.unsavedChanges = True
         state = self.graph.getState(stateNo)
+        # Store undo history
+        hist = (stateNo, 'move', state.getPosition())
+        self.history.pushHistory(hist)
+        # Make change & update
         self.setStatePosition(state, position)
         self.notifyListeners()
 
     def setStatePosition(self, state, position):
-        ''' Updates or sets the position of a state '''
+        ''' Updates or sets the position of a state 
+        (Don't use directly)'''
+        # Make change
         x, y = position
         state.setPosition(x, y)
-        self.maxXdist = max(self.maxXdist, x)
-        self.maxYdist = max(self.maxYdist, y)
+        # Update dimensions
+        self.recalcPositions()
 
     def recalcPositions(self):
         ''' Recalculates the dimensions after a removal '''
@@ -243,7 +297,7 @@ class Controller:
     def setPosition(self, state):
         ''' Sets up the position of a newly added state '''
         x, y = state.getPosition()
-        if x is None or y is None:
+        if not x or not y:
             self.setStatePosition(state, self.getNextPosition())
         else:
             self.maxXdist = max(self.maxXdist, x)

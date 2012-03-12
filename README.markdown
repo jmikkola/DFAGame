@@ -28,8 +28,12 @@ This allows building a DFA representing a simple game.
 + Show file name in title bar
 + Show the text of the "to" state in a tooltip when creating
   transitions 
++ Fix line wrapping for state text
++ Reduce number of 'changes' from state text
 
 ### Logic work
+
++ Disallow over-writing transitions
 
 + Create logic to check for errors
   + Unreachable states

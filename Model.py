@@ -5,7 +5,7 @@ import json
 class State:
     ''' This class represents a single state
     and its transitions '''
-    def __init__(self, text, transitions=None, x=None, y=None, end=False):
+    def __init__(self, text, transitions=None, x=0, y=0, end=False):
         self.text = text
         self.transitions = transitions if transitions else dict()
         self.x = x
@@ -113,16 +113,18 @@ class Graph:
     def toSerializable(self):
         ''' Converts graph into a format that can be
         serialized into JSON '''
-        numbers = dict((v,i) for (i,v) in enumerate(self.states))
-        out = []
-        for i,v in enumerate(self.states):
-            trns = dict((cmd,numbers[st]) for (cmd,st) \
-                            in v.transitions.iteritems())
-            out.append({'state': v.text, 
-                        'x': v.x, 'y': v.y,
-                        'end': v.end,
-                        'transitions': trns})
-        return out
+        return map(self.serializeState, xrange(self.numStates()))
+
+    def serializeState(self, stateNo):
+        state = self.states[stateNo]
+        transitions = dict()
+        for (cmd, to) in state.transitions.iteritems():
+            transitions[cmd] = self.getIndex(to)
+        return {
+            'state': state.text,
+            'x': state.x, 'y': state.y,
+            'end': state.end,
+            'transitions': transitions }
 
 
 def saveGraph(graph, filename):
@@ -137,7 +139,6 @@ def loadGraph(filename):
     return Graph(serialized=j)
 
 def playGame(graph):
-    # TODO: add a method for getting the start state
     state = graph.getState(0)
     while not state.end:
         print state.text, "\n"
