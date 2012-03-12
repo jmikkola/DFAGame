@@ -90,7 +90,7 @@ class Graph:
     def addState(self, text='', x=0, y=0):
         ''' Adds a State object with the given text to the 
         graph, and returns the new state object '''
-        state = State(text, x, y)
+        state = State(text, None, x, y, False)
         self.states.append(state)
         return state
 

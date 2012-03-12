@@ -182,8 +182,48 @@ class Controller:
             self.notifyListeners()
 
     def undo(self, menu):
+        # Get the undo history
         item = self.history.undo()
-        print item
+        num = item[0]
+        kind = item[1]
+        graph = self.graph
+
+        # Undo the right kind of action:
+        if kind == 'added':
+            graph.removeState(num)
+            if self.selection == num:
+                self.selection -= 1
+        elif kind == 'removed':
+            s = item[2]
+            state = graph.addState(s['state'], s['x'], s['y'])
+            state.end = s['end']
+            for cmd, n in s['transitions'].iteritems():
+                state.addTransition(cmd, graph.getState(n))
+            # TODO: store & add back transitions _TO_ this state...
+        elif kind == 'text':
+            state = graph.getState(num)
+            state.text = item[2]
+        elif kind == 'addtr':
+            state = graph.getState(num)
+            command = item[2]
+            state.removeTransition(command)
+        elif kind == 'rmtr':
+            state = graph.getState(num)
+            command = item[2]
+            to = graph.getState(item[3])
+            state.addTransition(command, to)
+        elif kind == 'end':
+            state = graph.getState(num)
+            state.end = item[2]
+        elif kind == 'move':
+            state = graph.getState(num)
+            x, y = item[2]
+            state.setPosition(x, y)
+
+        # Update
+        self.unsavedChanges = self.history.unsavedChanges()
+        self.notifyListeners()
+            
 
     def redo(self, menu):
         print menu
