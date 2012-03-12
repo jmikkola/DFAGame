@@ -14,18 +14,20 @@ This allows building a DFA representing a simple game.
   
 ### UI work
 
-+ Add window for playing the game
-
 + Create menu bar
   + Game menu: play, play from selected, check for errors
   
 + Disable game modifications while playing game  
-+ 'Add' button to add transitions should not work if there is no transition text
-+ Button for removing states should not work if state selected is the start state
-+ Button to add transitions should warn on over-writing existing transition
++ 'Add' button to add transitions should not work if there is no
+  transition text 
++ Button for removing states should not work if state selected is the
+  start state 
++ Button to add transitions should warn on over-writing existing
+  transition 
 + Create keyboard shortcuts
 + Show file name in title bar
-+ Show the text of the "to" state in a tooltip when creating transitions
++ Show the text of the "to" state in a tooltip when creating
+  transitions 
 
 ### Logic work
 
