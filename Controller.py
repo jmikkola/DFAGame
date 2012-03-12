@@ -45,7 +45,7 @@ class Controller:
         # Transfer control to GTK event loop
         gtk.main()
 
-    def exit(self, event):
+    def exit(self, menu, data):
         ''' Exit the program '''
         if self.checkClose():
             gtk.main_quit()
@@ -182,7 +182,7 @@ class Controller:
             state.end = isEnding
             self.notifyListeners()
 
-    def undo(self, menu):
+    def undo(self, menu, data):
         # Get the undo history
         item = self.history.undo()
         if item is None:
@@ -231,7 +231,7 @@ class Controller:
         self.notifyListeners()
             
 
-    def redo(self, menu):
+    def redo(self, menu, data):
         print menu
 
 
@@ -239,10 +239,10 @@ class Controller:
     # Functions for file handling
     # ----------------------------------
 
-    def saveGame(self, menu):
+    def saveGame(self, menu, data):
         # Get file name
         filename = self.fileOpen
-        if filename is None or menu == 'file.saveas':
+        if filename is None or menu == 1:
             filename = fileDialog(save=True)
         if filename:
             # Check for overwriting existing file
@@ -255,13 +255,13 @@ class Controller:
             return True
         return False
 
-    def newGame(self, menu):
+    def newGame(self, menu, data):
         if not self.checkClose(False):
             return
         self.resetGraph()
         self.notifyListeners()
 
-    def openGame(self, menu):
+    def openGame(self, menu, data):
         # Check for unsaved changes
         if not self.checkClose(False):
             return
@@ -354,7 +354,7 @@ class Controller:
     # Functions for demoing the game
     # ----------------------------------
 
-    def startGame(self, menu):
+    def startGame(self, menu, data):
         # Don't allow to instances at once
         if self.isPlaying:
             return
@@ -363,7 +363,7 @@ class Controller:
         
         # Unless the game will start from the selected
         # state, move to the start state
-        if menu != 'play.startselected':
+        if menu != 1:
             self.selection = 0
             self.notifyListeners()
 

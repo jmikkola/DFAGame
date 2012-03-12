@@ -174,92 +174,32 @@ class PlayWindow(gtk.Window):
         self.controller.isPlaying = False
         return False
 
-class WindowMenu(gtk.MenuBar):
-    def __init__(self, controller):
-        gtk.MenuBar.__init__(self)
-        self.controller = controller
-        self.fileMenu = self.makeFileMenu()
-        self.editMenu = self.makeEditMenu()
-        self.playMenu = self.makePlayMenu()
-        controller.registerListener(self.update)
-
-    def update(self):
-        if self.controller.isPlaying:
-            pass
-
-    def makeFileMenu(self):
-        mi = gtk.MenuItem('File')
-        menu = gtk.Menu()
-        # "Open"
-        miOpen = gtk.MenuItem('Open')
-        miOpen.connect_object(
-            'activate', self.controller.openGame, 'file.open')
-        menu.add(miOpen)
-        # "New"
-        miNew = gtk.MenuItem('New')
-        miNew.connect_object(
-            'activate', self.controller.newGame, 'file.new')
-        menu.add(miNew)
-        # "Save"
-        miSave = gtk.MenuItem('Save')
-        miSave.connect_object(
-            'activate', self.controller.saveGame, 'file.save')
-        menu.add(miSave)
-        # Save as
-        miSaveAs = gtk.MenuItem('Save as')
-        miSaveAs.connect_object(
-            'activate', self.controller.saveGame, 'file.saveas')
-        menu.add(miSaveAs)
-        # "Quit"
-        miQuit = gtk.MenuItem('Quit')
-        miQuit.connect_object(
-            'activate', self.controller.exit, 'file.quit')
-        menu.add(miQuit)
-        # Putting it together
-        mi.set_submenu(menu)
-        self.add(mi)
-        return mi
-
-    def makeEditMenu(self):
-        ctr = self.controller
-        mi = gtk.MenuItem('Edit')
-        menu = gtk.Menu()
-        # "Undo"
-        miUndo = gtk.MenuItem('Undo')
-        miUndo.connect_object(
-            'activate', ctr.undo, 'edit.undo')
-        menu.add(miUndo)
-        # "Redo"
-        miRedo = gtk.MenuItem('Redo')
-        miRedo.connect_object(
-            'activate', ctr.redo, 'edit.redo')
-        menu.add(miRedo)
-        # Putting it together
-        mi.set_submenu(menu)
-        self.add(mi)
-        return mi
-
-    def makePlayMenu(self):
-        ctr = self.controller
-        mi = gtk.MenuItem('Play')
-        menu = gtk.Menu()
-        # "Start game"
-        miStartGame = gtk.MenuItem('Start game')
-        miStartGame.connect_object(
-            'activate', ctr.startGame, 'play.startgame')
-        menu.add(miStartGame)
-        # "Start from selected"
-        miStartSelected = gtk.MenuItem('Start from selected')
-        miStartSelected.connect_object(
-            'activate', ctr.startGame, 'play.startselected')
-        menu.add(miStartSelected)
-        # "Check for errors"
-        miCheckGame = gtk.MenuItem('Check for errors')
-        menu.add(miCheckGame)
-        # Putting it together
-        mi.set_submenu(menu)
-        self.add(mi)
-        return mi
+def makeMenuBar(window, ctrl):
+    ''' Build the main menu bar '''
+    menu_items = (
+        # menu path, accelerator key, callback, callback action, item type
+        ('/_File',         None,                None,           0, '<Branch>'), 
+        ('/File/_New',     '<control>N',        ctrl.newGame,   0, None),
+        ('/File/_Open',    '<control>O',        ctrl.openGame,  0, None),
+        ('/File/_Save',    '<control>S',        ctrl.saveGame,  0, None),
+        ('/File/Save _As', '<control><shift>S', ctrl.saveGame,  1, None),
+        ('/File/Quit',     '<control>Q',        ctrl.exit,      0, None),
+        ('/_Edit',         None,                None,           0, '<Branch>'),
+        ('/Edit/_Undo',    '<control>Z',        ctrl.undo,      0, None),
+        ('/Edit/_Redo',    '<control>Y',        ctrl.redo,      0, None),
+        ('/_Play',         None,                None,           0, '<Branch>'),
+        ('/Play/Start _Game', 
+                           '<control>P',        ctrl.startGame, 0, None),
+        ('/Play/Start from _Selected', 
+                           '<control><shift>P', ctrl.startGame, 1, None),
+        ('/Play/Check for _Errors', 
+                           '<control>E',        None,           0, None),
+        )
+    accel_group = gtk.AccelGroup()
+    item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', accel_group)
+    item_factory.create_items(menu_items)
+    window.add_accel_group(accel_group)
+    return item_factory.get_widget('<main>')
 
 class StatePane(gtk.VBox):
     def __init__(self, controller):
@@ -441,7 +381,8 @@ class BuilderWindow:
     def setContent(self):
         vb = gtk.VBox(False, 0)
         # Menu bar
-        self.menuBar = WindowMenu(self.controller)
+        ###self.menuBar = WindowMenu(self.controller)
+        self.menuBar = makeMenuBar(self.window, self.controller)
         vb.pack_start(self.menuBar, False, False)
         # Main content
         hb = gtk.HBox(False, 0)

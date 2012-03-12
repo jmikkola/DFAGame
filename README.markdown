@@ -14,9 +14,6 @@ This allows building a DFA representing a simple game.
   
 ### UI work
 
-+ Create menu bar
-  + Game menu: play, play from selected, check for errors
-  
 + Disable game modifications while playing game  
 + 'Add' button to add transitions should not work if there is no
   transition text 
