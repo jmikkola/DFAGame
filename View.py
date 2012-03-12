@@ -131,7 +131,7 @@ class PlayWindow(gtk.Window):
         state = self.controller.getCurrentState()
         text = state.text + '\n\n'
         self.entry.set_text('')
-        if state.getAttribute('end'):
+        if state.end:
             text += 'GAME FINISHED'
             self.entry.set_editable(False)
             self.playing = False
@@ -303,7 +303,7 @@ class StatePane(gtk.VBox):
     def updateStateInfo(self, state):
         text = state.text
         self.stateTextBuffer.set_text(text)
-        active = 1 if state.getAttribute('end') else 0
+        active = 1 if state.end else 0
         self.checkEndState.set_active(active)
 
     def updateTrCombo(self, numStates):

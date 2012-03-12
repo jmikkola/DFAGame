@@ -63,7 +63,7 @@ class GraphArea(gtk.DrawingArea):
         the mouse click '''
         graph = self.controller.graph
         for stateNo in xrange(graph.numStates()):
-             sx, sy = self.controller.getPosition(stateNo)
+             sx, sy = graph.getState(stateNo).getPosition()
              if distance(x, y, sx, sy) <= self.radius:
                  self.controller.selectState(stateNo)
                  return stateNo
@@ -104,27 +104,27 @@ class GraphArea(gtk.DrawingArea):
         black = (0, 0, 0)
 
         # Show current selection
-        x, y = controller.getPosition(controller.selection)
+        x, y = controller.getCurrentState().getPosition()
         self.draw_selection(cr, x, y)
 
         # Draw transitions
         for i in xrange(npoints):
             fromState = graph.getState(i)
-            fromXY = controller.getPosition(i)
+            fromXY = fromState.getPosition()
             for (_, toState) in fromState.listTransitions():
                 j = graph.getIndex(toState)
                 if i == j:
                     self.draw_loop(cr, fromXY)
                 else:
-                    toXY = controller.getPosition(j)
+                    toXY = graph.getState(j).getPosition()
                     self.draw_transition(cr, fromXY, toXY)
 
         # Draw vertices
         for i in xrange(npoints):
-            xy = controller.getPosition(i)
+            xy = graph.getState(i).getPosition()
             if i == 0: 
                 color = green
-            elif graph.getState(i).getAttribute('end'):
+            elif graph.getState(i).end:
                 color = red
             else:
                 color = black

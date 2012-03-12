@@ -198,22 +198,16 @@ class Controller:
         (accept/final) state '''
         isEnding = widget.get_active()
         state = self.getCurrentState()
-        old_isEnding = True if state.getAttribute('end') else False
+        old_isEnding = state.end
         if isEnding != old_isEnding:
             self.unsavedChanges = True
-            state.addAttribute('end', isEnding)
+            state.end = isEnding
             self.notifyListeners()
         
 
     # ----------------------------------
     # Functions for graph display
     # ----------------------------------
-
-    def getPosition(self, stateNo):
-        ''' Gives the position of the given state '''
-        state = self.graph.getState(stateNo)
-        attrs = state.attributes
-        return int(attrs['x']), int(attrs['y'])
 
     def getNextPosition(self):
         ''' Computes and available position for 
@@ -223,14 +217,6 @@ class Controller:
         if xd < yd: return (xd + sp, sp)
         else:       return (sp, yd + sp)
 
-    def nextDefaultPosition(self):
-        ''' Gets the next position under the old 
-        position algorithm '''
-        i = self.nPositions
-        self.nPositions += 1
-        sp = self.space
-        return (sp + sp*(i%10), sp + sp*(i/10))
-
     def moveState(self, stateNo, position):
         self.unsavedChanges = True
         state = self.graph.getState(stateNo)
@@ -239,31 +225,29 @@ class Controller:
 
     def setStatePosition(self, state, position):
         ''' Updates or sets the position of a state '''
-        x,y = position
-        state.attributes['x'] = x
-        state.attributes['y'] = y
+        x, y = position
+        state.setPosition(x, y)
         self.maxXdist = max(self.maxXdist, x)
         self.maxYdist = max(self.maxYdist, y)
 
     def recalcPositions(self):
-        ''' Recalculates the dimensions after 
-        a removal '''
+        ''' Recalculates the dimensions after a removal '''
         xmax, ymax = 0, 0 # assuming positions are positive
         for state in self.graph.states:
-            attrs = state.attributes
-            xmax = max(xmax, int(attrs['x']))
-            ymax = max(ymax, int(attrs['y']))
+            x, y = state.getPosition()
+            xmax = max(xmax, x)
+            ymax = max(ymax, y)
         self.maxXdist = xmax
         self.maxYdist = ymax
 
     def setPosition(self, state):
         ''' Sets up the position of a newly added state '''
-        attrs = state.attributes
-        if ('x' not in attrs) or ('y' not in attrs):
-            self.setStatePosition(state, self.nextDefaultPosition())
+        x, y = state.getPosition()
+        if x is None or y is None:
+            self.setStatePosition(state, self.getNextPosition())
         else:
-            self.maxXdist = max(self.maxXdist, attrs['x'])
-            self.maxYdist = max(self.maxYdist, attrs['y'])
+            self.maxXdist = max(self.maxXdist, x)
+            self.maxYdist = max(self.maxYdist, y)
         
 
     # ----------------------------------

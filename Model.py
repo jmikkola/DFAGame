@@ -5,25 +5,19 @@ import json
 class State:
     ''' This class represents a single state
     and its transitions '''
-    def __init__(self, text, transitions=None, attributes=None):
+    def __init__(self, text, transitions=None, x=None, y=None, end=False):
         self.text = text
         self.transitions = transitions if transitions else dict()
-        self.attributes = attributes if attributes else dict()
+        self.x = x
+        self.y = y
+        self.end = end
 
-    def getAttribute(self, key):
-        ''' Returns the value of the attribute '''
-        if key in self.attributes:
-            return self.attributes[key]
-        return None
+    def getPosition(self):
+        return (self.x, self.y)
 
-    def addAttribute(self, key, value):
-        ''' Sets the value of the attribute '''
-        self.attributes[key] = value
-
-    def removeAttribute(self, key):
-        ''' Removes the attribute from the state '''
-        if key in self.attributes:
-            del self.attributes[key]
+    def setPosition(self, x, y):
+        self.x = x
+        self.y = y
 
     def addTransition(self, command, state):
         ''' Adds a transition to State object in
@@ -52,7 +46,7 @@ class State:
             del self.transitions[cmd]
                 
     def __str__(self):
-        s = self.text + " : {"
+        s = self.text + "@" + str(x) + ',' + str(y) + " : {"
         for k,v in self.transitions.iteritems():
             s += repr(k) + ": " + repr(v.text) + ", "
         return s + "}"
@@ -72,16 +66,14 @@ class Graph:
 
         # Read in states with text and attirbutes
         for st in serialized:
-            state = State(st['state'], attributes=st['attributes'])
+            state = State(st['state'], None, st['x'], st['y'], st['end'])
             self.states.append(state)
 
         # Add transitions between states
         for i,st in enumerate(serialized):
             start = self.states[i]
-            transitions = st['transitions']
-            for cmd,j in transitions.iteritems():
-                end = self.states[j]
-                self.addTransition(start, end, cmd)
+            for (cmd,j) in st['transitions'].iteritems():
+                self.addTransition(start, self.states[j], cmd)
 
     def numStates(self):
         ''' Returns the number of states '''
@@ -95,10 +87,10 @@ class Graph:
         ''' Returns the index of the state '''
         return self.states.index(state)
 
-    def addState(self, text='', attributes=None):
+    def addState(self, text='', x=0, y=0):
         ''' Adds a State object with the given text to the 
         graph, and returns the new state object '''
-        state = State(text, attributes=attributes)
+        state = State(text, x, y)
         self.states.append(state)
         return state
 
@@ -127,8 +119,9 @@ class Graph:
             trns = dict((cmd,numbers[st]) for (cmd,st) \
                             in v.transitions.iteritems())
             out.append({'state': v.text, 
-                        'transitions': trns,
-                        'attributes': v.attributes})
+                        'x': v.x, 'y': v.y,
+                        'end': v.end,
+                        'transitions': trns})
         return out
 
 
@@ -146,7 +139,7 @@ def loadGraph(filename):
 def playGame(graph):
     # TODO: add a method for getting the start state
     state = graph.getState(0)
-    while not state.getAttribute('final'):
+    while not state.end:
         print state.text, "\n"
         options = state.listTransitions()
         for i,option in enumerate(options):
@@ -159,10 +152,9 @@ def playGame(graph):
 if __name__ == '__main__':
     g = Graph()
     sn1 = g.addState('first state')
-    sn1.addAttribute('start', True)
     sn2 = g.addState('another state')
     sn3 = g.addState('third state')
-    sn3.addAttribute('final', True)
+    sn3.end = True
     g.addTransition(sn1, sn2, 'go up')
     g.addTransition(sn1, sn3, 'pass')
     g.addTransition(sn2, sn1, 'go down')
