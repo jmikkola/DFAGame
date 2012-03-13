@@ -263,6 +263,7 @@ class Controller:
             # Save file
             saveGraph(self.graph, filename)
             self.unsavedChanges = False
+            self.history.stateSaved()
             return True
         return False
 

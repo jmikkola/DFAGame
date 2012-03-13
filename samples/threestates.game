@@ -1,0 +1,1 @@
+[{"y": 50, "x": 50, "state": "Start state", "transitions": {"0to2": 2, "0to1": 1, "0loop": 0}, "end": false}, {"y": 100, "x": 50, "state": "", "transitions": {"1to2": 2, "1to0": 0, "1loop": 1}, "end": false}, {"y": 50, "x": 100, "state": "", "transitions": {"2loop": 2, "2to1": 1, "2to0": 0}, "end": false}]

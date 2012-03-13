@@ -11,7 +11,6 @@ This allows building a DFA representing a simple game.
 
 + Show the text of the "to" state in a tooltip when creating
   transitions 
-+ Fix line wrapping for state text
 + Saving needs to update Undo state & title bar
 
 ### Logic work
