@@ -316,6 +316,7 @@ class BuilderWindow:
         ''' Set up the window '''
         assert(controller is not None)
         self.controller = controller
+        self.controller.registerListener(self.update)
         self.setupWindow()
         self.setContent()
         addKbdShortcuts(self.window, controller)
@@ -347,12 +348,20 @@ class BuilderWindow:
         self.vb = vb
         self.setTitle()
 
-    def setTitle(self, fileName=None):
+    def setTitle(self, fileName=None, unsaved=False):
         ''' Sets the title of the window '''
         title = 'DFA editor'
         if fileName:
             title = fileName + ' - ' + title
+        if unsaved:
+            title = '*' + title
         self.window.set_title(title)
+
+    def update(self):
+        ''' Updates the window in response to an 
+        update in the controller '''
+        ctrl = self.controller
+        self.setTitle(ctrl.getFile(), ctrl.unsavedChanges)
 
     def delete_event(self, widget, event, data=None):
         ''' Handle the event to delete the window '''

@@ -79,6 +79,13 @@ class Controller:
         ''' Returns the state object currently selected '''
         return self.graph.getState(self.selection)
 
+    def getFile(self):
+        ''' Returns the file name of the currently open file, 
+        or an empty string if there is none '''
+        if self.fileOpen:
+            return path.basename(self.fileOpen)
+        return ''
+
     # ----------------------------------
     # Functions for UI events
     # ----------------------------------
