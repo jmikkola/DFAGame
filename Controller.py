@@ -269,6 +269,7 @@ class Controller:
     def saveGame(self, menu, data=None):
         # Get file name
         filename = self.fileOpen
+        # Save or save as?
         if filename is None or menu == 1:
             filename = fileDialog(save=True)
         if filename:

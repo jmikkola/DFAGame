@@ -9,7 +9,30 @@ from Controller import *
 from Model import *
 from GraphArea import *
 
+def leftLabel(text):
+    ''' Creates a left algined label (a typing-saver) '''
+    label = gtk.Label(text)
+    label.set_alignment(0, 0.5)
+    return label
+
+def iconButton(stock_id, text=None):
+    ''' Creates a button with the icon of the given 
+    stock id '''
+    btn = gtk.Button()
+    img = gtk.Image()
+    img.set_from_stock(stock_id, gtk.ICON_SIZE_MENU)
+    if text:
+        hbx = gtk.HBox(False, 0)
+        hbx.pack_start(img, padding=5)
+        hbx.pack_start(gtk.Label(text), padding=5)
+        btn.add(hbx)
+    else:
+        btn.add(img)
+    return btn
+
 def fileDialog(save=False, folder=None):
+    ''' Shows a file open or save dialog '''
+
     filename = None
     if save:
         action = gtk.FILE_CHOOSER_ACTION_SAVE
@@ -49,6 +72,7 @@ def fileDialog(save=False, folder=None):
 
 
 def askYesNO(question):
+    ''' Asks a yes or no question using a message dialog '''
     # Build dialog
     dialog = gtk.MessageDialog(
         type = gtk.MESSAGE_QUESTION,
@@ -61,6 +85,8 @@ def askYesNO(question):
     return (response == gtk.RESPONSE_YES)
 
 def askUnsavedChanges(quitting):
+    ''' Shows a message dialog asking about discarding
+    unsaved changes '''
     question = 'There are unsaved changed.'
     if quitting:
         close = 'Close without saving'
@@ -370,23 +396,6 @@ class BuilderWindow:
         return True
 
 
-def leftLabel(text):
-    label = gtk.Label(text)
-    label.set_alignment(0, 0.5)
-    return label
-
-def iconButton(stock_id, text=None):
-    btn = gtk.Button()
-    img = gtk.Image()
-    img.set_from_stock(stock_id, gtk.ICON_SIZE_MENU)
-    if text:
-        hbx = gtk.HBox(False, 0)
-        hbx.pack_start(img, padding=5)
-        hbx.pack_start(gtk.Label(text), padding=5)
-        btn.add(hbx)
-    else:
-        btn.add(img)
-    return btn
 
 def main():
     ''' This method starts the program '''
