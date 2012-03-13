@@ -291,8 +291,8 @@ class StatePane(gtk.VBox):
     def cb_add_transition(self, widget):
         command = self.trEntry.get_text()
         endNo = self.trCombo.get_active()
-        self.controller.createTransition(widget, (command, endNo))
-        self.trEntry.set_text('')
+        if self.controller.createTransition(widget, (command, endNo)):
+            self.trEntry.set_text('')
 
     def cb_update_trentry(self, widget, data=None):
         # Selectively enable the 'add' button

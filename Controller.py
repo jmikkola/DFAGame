@@ -141,11 +141,13 @@ class Controller:
 
     def createTransition(self, widget, data=None):
         ''' Creates a new transition from the current state '''
-        # TODO: disallow overwriting transitions
-        self.unsavedChanges = True
         # Get info
         command, endNo = data
         start = self.getCurrentState()
+        # disallow overwriting transitions
+        if command in start.transitions:
+            return False
+        self.unsavedChanges = True
         end = self.graph.getState(endNo)
         # Store undo history
         hist = (self.selection, 'addtr', command)
@@ -153,6 +155,7 @@ class Controller:
         # Make change & update
         self.graph.addTransition(start, end, command)
         self.notifyListeners()
+        return True
 
     def removeTransition(self, widget, command):
         ''' Removes a transition from the selected state '''
