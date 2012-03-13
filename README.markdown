@@ -14,7 +14,6 @@ This allows building a DFA representing a simple game.
   
 ### UI work
 
-+ Disable game modifications while playing game  
 + 'Add' button to add transitions should not work if there is no
   transition text 
 + Button for removing states should not work if state selected is the

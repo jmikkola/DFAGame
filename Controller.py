@@ -41,7 +41,7 @@ class Controller:
 
     def main(self):
         ''' This method starts the program '''
-        self.window = BuilderWindow(self)
+        self.builderWindow = BuilderWindow(self)
         # Transfer control to GTK event loop
         gtk.main()
 
@@ -361,6 +361,7 @@ class Controller:
             return
         self.isPlaying = True
         # isPlaying gets set back to False by PlayWindow.delete_event()
+        self.builderWindow.vb.set_sensitive(False)
         
         # Unless the game will start from the selected
         # state, move to the start state
@@ -370,4 +371,8 @@ class Controller:
 
         # Show window
         PlayWindow(self)
+
+    def stopGame(self):
+        self.isPlaying = False
+        self.builderWindow.vb.set_sensitive(True)
         

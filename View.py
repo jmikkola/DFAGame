@@ -171,7 +171,7 @@ class PlayWindow(gtk.Window):
         self.update()
 
     def delete_event(self, widget, event, data=None):
-        self.controller.isPlaying = False
+        self.controller.stopGame()
         return False
 
 def makeMenuBar(window, ctrl):
@@ -406,6 +406,7 @@ class BuilderWindow:
         # Setup
         vb.pack_start(hb, True, True)
         self.window.add(vb)
+        self.vb = vb
         self.setTitle()
 
     def setTitle(self, fileName=None):
