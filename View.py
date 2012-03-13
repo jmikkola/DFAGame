@@ -201,6 +201,16 @@ def makeMenuBar(window, ctrl):
     window.add_accel_group(accel_group)
     return item_factory.get_widget('<main>')
 
+def addKbdShortcuts(window, ctrl):
+    ''' Sets keyboard shortcuts '''
+    shortcuts = [
+        (ord('t'), gtk.gdk.CONTROL_MASK, 0, ctrl.createState),
+        ]
+    accel_group = gtk.AccelGroup()
+    for (key, mods, flags, callback) in shortcuts:
+        accel_group.connect_group(key, mods, flags, callback)
+    window.add_accel_group(accel_group)
+
 class StatePane(gtk.VBox):
     def __init__(self, controller):
         gtk.VBox.__init__(self, False, 5)
@@ -369,6 +379,7 @@ class BuilderWindow:
         self.controller = controller
         self.setupWindow()
         self.setContent()
+        addKbdShortcuts(self.window, controller)
         self.window.show_all()
 
     def setupWindow(self):

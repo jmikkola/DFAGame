@@ -45,7 +45,7 @@ class Controller:
         # Transfer control to GTK event loop
         gtk.main()
 
-    def exit(self, menu, data):
+    def exit(self, menu, data=None):
         ''' Exit the program '''
         if self.checkClose():
             gtk.main_quit()
@@ -82,8 +82,9 @@ class Controller:
     # Functions for UI events
     # ----------------------------------
 
-    def createState(self, widget):
+    def createState(self, widget, *args):
         ''' Creates a new state and selects it '''
+        print args
         self.unsavedChanges = True
         # Make change
         state = self.graph.addState()
@@ -138,7 +139,7 @@ class Controller:
         state.text = text
         # No re-draw needed
 
-    def createTransition(self, widget, data):
+    def createTransition(self, widget, data=None):
         ''' Creates a new transition from the current state '''
         # TODO: disallow overwriting transitions
         self.unsavedChanges = True
@@ -182,7 +183,7 @@ class Controller:
             state.end = isEnding
             self.notifyListeners()
 
-    def undo(self, menu, data):
+    def undo(self, menu, data=None):
         # Get the undo history
         item = self.history.undo()
         if item is None:
@@ -231,7 +232,7 @@ class Controller:
         self.notifyListeners()
             
 
-    def redo(self, menu, data):
+    def redo(self, menu, data=None):
         print menu
 
 
@@ -239,7 +240,7 @@ class Controller:
     # Functions for file handling
     # ----------------------------------
 
-    def saveGame(self, menu, data):
+    def saveGame(self, menu, data=None):
         # Get file name
         filename = self.fileOpen
         if filename is None or menu == 1:
@@ -255,13 +256,13 @@ class Controller:
             return True
         return False
 
-    def newGame(self, menu, data):
+    def newGame(self, menu, data=None):
         if not self.checkClose(False):
             return
         self.resetGraph()
         self.notifyListeners()
 
-    def openGame(self, menu, data):
+    def openGame(self, menu, data=None):
         # Check for unsaved changes
         if not self.checkClose(False):
             return
@@ -354,7 +355,7 @@ class Controller:
     # Functions for demoing the game
     # ----------------------------------
 
-    def startGame(self, menu, data):
+    def startGame(self, menu, data=None):
         # Don't allow to instances at once
         if self.isPlaying:
             return
