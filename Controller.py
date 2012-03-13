@@ -18,7 +18,8 @@ class Controller:
         self.notifying = False
         self.isPlaying = False
         # Set up listeners
-        self.listeners = []
+        self.listeners = set()
+        self.fileListeners = set()
 
     def resetGraph(self):
         ''' Reset to a new graph '''
@@ -56,19 +57,33 @@ class Controller:
     # (i.e. observer pattern)
     # ----------------------------------
 
-    def registerListener(self, function):
-        if function in self.listeners:
-            return False
-        self.listeners.append(function)
-        return True
+    def registerListener(self, function, fileUpdates=False):
+        ''' Adds a listener function (which should ahve no 
+        arguments) to the list that will be updated. Set 
+        fileUpdates to True to get updates on file state. '''
+        self.listeners.add(function)
+        if fileUpdates:
+            self.fileListeners.add(function)
 
-    def notifyListeners(self):
-        # Hopefully there won't be two threads
-        # trying to hit this at the same time:
+    def notifyListeners(self, updateGraph=True):
+        ''' Notifies the listeners that had registered. 
+        If no kinds are specified, all listeners are notified. '''
+
+        # Don't notify recursively:
         if self.notifying: return
         self.notifying = True
-        for function in self.listeners:
+
+        # Select who to notify
+        if updateGraph:
+            listeners = self.listeners
+        else:
+            listeners = self.fileListeners
+
+        # Notify all selected
+        for function in listeners:
             function()
+
+        # Allow notifications again
         self.notifying = False
 
     # ----------------------------------
@@ -144,7 +159,8 @@ class Controller:
         text = widget.get_text(widget.get_start_iter(), \
                                widget.get_end_iter())
         state.text = text
-        # No re-draw needed
+        # No re-draw needed, just 'saved' state
+        self.notifyListeners(False)
 
     def createTransition(self, widget, data=None):
         ''' Creates a new transition from the current state '''
@@ -264,6 +280,7 @@ class Controller:
             saveGraph(self.graph, filename)
             self.unsavedChanges = False
             self.history.stateSaved()
+            self.notifyListeners(False)
             return True
         return False
 

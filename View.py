@@ -316,7 +316,7 @@ class BuilderWindow:
         ''' Set up the window '''
         assert(controller is not None)
         self.controller = controller
-        self.controller.registerListener(self.update)
+        self.controller.registerListener(self.update, True)
         self.setupWindow()
         self.setContent()
         addKbdShortcuts(self.window, controller)
