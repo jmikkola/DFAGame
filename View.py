@@ -221,7 +221,7 @@ class StatePane(gtk.VBox):
         # Text box
         text = gtk.TextView()
         text.set_cursor_visible(True)
-        text.set_wrap_mode(gtk.WRAP_CHAR)
+        text.set_wrap_mode(gtk.WRAP_WORD)
         text.set_size_request(0, 100)
         textBuffer = text.get_buffer()
         textBuffer.connect('end-user-action', \

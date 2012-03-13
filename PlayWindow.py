@@ -39,6 +39,7 @@ class PlayWindow(gtk.Window):
         # Set up text view
         text = gtk.TextView()
         text.set_editable(False)
+        text.set_wrap_mode(gtk.WRAP_WORD)
         textBuffer = text.get_buffer()
 
         # Scrolled window around text

@@ -12,9 +12,7 @@ This allows building a DFA representing a simple game.
 + Show the text of the "to" state in a tooltip when creating
   transitions 
 + Fix line wrapping for state text
-+ Reduce number of 'changes' from state text
-+ Disallow creating transitions out of an end state?
-+ Disallow setting a state as ending if it has transitions out of it?
++ Saving needs to update Undo state & title bar
 
 ### Logic work
 
@@ -23,6 +21,5 @@ This allows building a DFA representing a simple game.
   + Inescapable loops / dead-ends 
   
 + Create undo / redo logic
-  + Should be efficient with regards to text updates
   + Add redo logic
   
