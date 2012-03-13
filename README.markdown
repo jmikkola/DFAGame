@@ -14,8 +14,6 @@ This allows building a DFA representing a simple game.
   
 ### UI work
 
-+ Button for removing states should not work if state selected is the
-  start state 
 + Button to add transitions should warn on over-writing existing
   transition 
 + Create keyboard shortcuts

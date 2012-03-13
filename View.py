@@ -162,6 +162,9 @@ class StatePane(gtk.VBox):
         self.stateCombo.set_active(self.controller.selection)
 
     def updateStateInfo(self, state):
+        # Update the 'Remove' button
+        self.rmBtn.set_sensitive(self.controller.selection > 0)
+        # Update state text & 'end' selection
         text = state.text
         self.stateTextBuffer.set_text(text)
         active = 1 if state.end else 0
@@ -198,6 +201,7 @@ class StatePane(gtk.VBox):
         self.addBtn.connect('clicked', self.controller.createState)
         self.rmBtn = iconButton(gtk.STOCK_REMOVE, text='Remove')
         self.rmBtn.connect('clicked', self.controller.removeState)
+        self.rmBtn.set_sensitive(False)
         # Make layout
         hb2 = gtk.HBox(False, 0)
         hb2.pack_start(self.addBtn, False, False)
