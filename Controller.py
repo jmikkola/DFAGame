@@ -4,6 +4,7 @@ from os import path
 from Model import *
 from Undo import *
 from View import *
+from PlayWindow import *
 
 class Controller:
     ''' Handles connection between the 
