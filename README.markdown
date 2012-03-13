@@ -9,7 +9,6 @@ This allows building a DFA representing a simple game.
 
 ### UI work
 
-+ Disallow setting start state as 'end'
 + Disallow creating transitions out of an end state?
 + Disallow setting a state as ending if it has transitions out of it?
 + Show file name in title bar

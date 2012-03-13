@@ -162,13 +162,16 @@ class StatePane(gtk.VBox):
         self.stateCombo.set_active(self.controller.selection)
 
     def updateStateInfo(self, state):
+        isStart = self.controller.selection == 0
         # Update the 'Remove' button
-        self.rmBtn.set_sensitive(self.controller.selection > 0)
-        # Update state text & 'end' selection
+        self.rmBtn.set_sensitive(not isStart)
+        # Update state text
         text = state.text
         self.stateTextBuffer.set_text(text)
         active = 1 if state.end else 0
+        # Update 'end' selection
         self.checkEndState.set_active(active)
+        self.checkEndState.set_sensitive(not isStart)
 
     def updateTrCombo(self, numStates):
         # Clear & re-fill the transition combo box
@@ -230,6 +233,7 @@ class StatePane(gtk.VBox):
         scroll.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         # Check-box for ending state
         endingState = gtk.CheckButton('Ending state')
+        endingState.set_sensitive(False)
         endingState.connect('toggled', self.controller.setEndingState)
         self.checkEndState = endingState
         # Store
