@@ -168,6 +168,7 @@ class StatePane(gtk.VBox):
         self.checkEndState.set_active(active)
 
     def updateTrCombo(self, numStates):
+        # Clear & re-fill the transition combo box
         self.trCombo.get_model().clear()
         for i in xrange(numStates):
             self.trCombo.append_text('#' + str(i))
@@ -237,20 +238,26 @@ class StatePane(gtk.VBox):
     def addTransitionAdd(self):
         # Set up combo box
         combo = gtk.ComboBox(gtk.ListStore(str))
+        combo.connect('changed', self.cb_update_trcombo)
         cell = gtk.CellRendererText()
         combo.pack_start(cell, True)
         combo.add_attribute(cell, 'text', 0)
+        
         # Make layout
         vb = gtk.VBox(False, 0)
         vb.pack_start(leftLabel('Add a transition:'))
         entry = gtk.Entry(max = 100)
+        entry.connect('changed', self.cb_update_trentry)
         vb.pack_start(entry)
+
         hb = gtk.HBox(False, 0)
         hb.pack_start(leftLabel('to'), False, False, 5)
         hb.pack_start(combo, False, False, 5)
         btn = gtk.Button('add')
+        btn.set_sensitive(False)
         btn.connect('clicked', self.cb_add_transition)
         hb.pack_start(btn, False, False, 5)
+
         vb.pack_start(hb)
         self.trEntry = entry
         self.trCombo = combo
@@ -283,6 +290,19 @@ class StatePane(gtk.VBox):
         self.controller.createTransition(widget, (command, endNo))
         self.trEntry.set_text('')
 
+    def cb_update_trentry(self, widget, data=None):
+        # Selectively enable the 'add' button
+        addEnabled = bool(self.trEntry.get_text())
+        addEnabled &= self.trCombo.get_active() > -1
+        self.trAdd.set_sensitive(addEnabled)
+
+    def cb_update_trcombo(self, widget, data=None):
+        # Selectively enable the 'add' button
+        addEnabled = self.trCombo.get_active() > -1
+        addEnabled &= bool(self.trEntry.get_text())
+        self.trAdd.set_sensitive(addEnabled)
+
+
 class BuilderWindow:
     def __init__(self, controller):
         ''' Set up the window '''
@@ -303,7 +323,6 @@ class BuilderWindow:
     def setContent(self):
         vb = gtk.VBox(False, 0)
         # Menu bar
-        ###self.menuBar = WindowMenu(self.controller)
         self.menuBar = makeMenuBar(self.window, self.controller)
         vb.pack_start(self.menuBar, False, False)
         # Main content

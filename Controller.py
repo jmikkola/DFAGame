@@ -85,7 +85,6 @@ class Controller:
 
     def createState(self, widget, *args):
         ''' Creates a new state and selects it '''
-        print args
         self.unsavedChanges = True
         # Make change
         state = self.graph.addState()
