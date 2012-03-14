@@ -7,11 +7,11 @@ This allows building a DFA representing a simple game.
 
 ## TODO
 
-### Logic work
-
 + Create logic to check for errors
   + Unreachable states
   + Inescapable loops / dead-ends 
+  + Unusable transitions (those out of end states)
+  + States with no text
   
 + Create undo / redo logic
   + Add redo logic
