@@ -288,6 +288,11 @@ class Controller:
         # Check for unreachable states
         if g.getUnreachable():
             problems.append('There are unreachable states.')
+
+        # Check for states that cannot reach an ending state
+        inescapable = g.getInescapable()
+        for i in inescapable:
+            problems.append('State #' + str(i) + ' cannot reach an end state')
         
         # Output results
         if not problems:

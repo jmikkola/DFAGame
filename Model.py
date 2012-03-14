@@ -154,12 +154,34 @@ class Graph:
                 if not st in reached:
                     reached.add(st)
                     queue.put(st)
-        # Note which were not reached
+        return self.listNotIncluded(reached)
+
+    def getInescapable(self):
+        ''' Returns a list of inescapable states 
+        (those from which an ending state cannot be reached) '''
+        reachEnd = set(st for st in self.states if st.end)
+        updated = True
+        while updated:
+            updated = False
+            for state in self.states:
+                if state in reachEnd:
+                    continue
+                for (_, st) in state.listTransitions():
+                    if st in reachEnd:
+                        reachEnd.add(state)
+                        updated = True
+                        break
+        return self.listNotIncluded(reachEnd)
+
+    def listNotIncluded(self, states):
+        ''' Takes a set of states and returns a 
+        list of the indcies of states not in that set '''
         unreached = []
         for i in xrange(self.numStates()):
-            if not self.states[i] in reached:
+            if not self.states[i] in states:
                 unreached.append(i)
         return unreached
+        
 
 def saveGraph(graph, filename):
     ''' Saves the graph to the given file name '''
