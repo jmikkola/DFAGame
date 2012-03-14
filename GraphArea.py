@@ -25,6 +25,7 @@ class GraphArea(gtk.DrawingArea):
         self.arcSize = 0.8
         self.arrowLength = 10
         self.arrowAngle = pi/6
+        self.textSize = 10
         # Information for dragging nodes
         self.stateSelected = None
         self.dragStart = None
@@ -145,12 +146,14 @@ class GraphArea(gtk.DrawingArea):
         cr.arc(x, y, self.radius, 0, 2 * pi)
         cr.fill()
         # Draw the text
-        txtSize = 10
-        cr.select_font_face('Arial', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        cr.set_font_size(txtSize)
-        cr.set_source_rgb(1 - r, 1 - g, 1 - b)
-        cr.move_to(x - txtSize/2, y + txtSize/2)
-        cr.show_text(str(number))
+        text = str(number)
+        cr.select_font_face('sans-serif', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        xbearing, ybearing, width, height, xadvance, yadvance = (
+                    cr.text_extents(text))
+        cr.set_font_size(self.textSize)
+        cr.set_source_rgb(1, 1, 1)
+        cr.move_to(x - xbearing - width/2, y - ybearing - height/2)
+        cr.show_text(text)
         cr.restore()
 
     def draw_transition(self, cr, (fromX, fromY), (toX, toY)):
