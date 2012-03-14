@@ -269,6 +269,7 @@ class Controller:
                     return False
             # Save file
             saveGraph(self.graph, filename)
+            self.fileOpen = filename
             self.unsavedChanges = False
             self.history.stateSaved()
             self.notifyListeners(False)
