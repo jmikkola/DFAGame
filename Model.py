@@ -13,12 +13,22 @@ class State:
         self.y = y
         self.end = end
 
+    def setText(self, text):
+        ''' Sets the text, returning the previous value '''
+        old = self.text
+        self.text = text
+        return old
+
     def getPosition(self):
         return (self.x, self.y)
 
     def setPosition(self, x, y):
+        ''' Sets the position of the state, returning the 
+        previous position '''
+        prev = (self.x, self.y)
         self.x = x
         self.y = y
+        return prev
 
     def addTransition(self, command, state):
         ''' Adds a transition to State object in
@@ -97,17 +107,23 @@ class Graph:
         return state
 
     def removeState(self, index):
-        ''' Removes a state by index from the graph '''
+        ''' Removes a state by index from the graph.
+        Returns a history tuple of the format
+        (index, 'removed', serializedState, incoming)
+        where incoming is a list of tuples of the form
+        (fromIndex, command)
+        '''
         state = self.states[index]
-        removed = []
+        srlState = self.serializeState(index)
+        incoming = []
         for (i, s) in enumerate(self.states):
             if i == index: 
                 continue
             commands = s.removeConnections(state)
             for c in commands:
-                removed.append( (i, c) )
+                incoming.append( (i, c) )
         self.states.pop(index)
-        return removed
+        return (index, 'removed', srlState, incoming)
             
 
     def addTransition(self, start, end, command):
@@ -115,10 +131,16 @@ class Graph:
         end state on the given command '''
         start.addTransition(command, end)
         
-    def removeTransition(self, start, command):
+    def removeTransition(self, startNo, command):
         ''' Removes a transition starting at start with
         the given command '''
-        start.removeTransition(command)
+        start = self.getState(startNo)
+        to = start.getTransition(command)
+        if to:
+            start.removeTransition(command)
+            toind = self.getIndex(to)
+            return (startNo, 'rmtr', command, toind)
+        return None
 
     def toSerializable(self):
         ''' Converts graph into a format that can be

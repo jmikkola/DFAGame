@@ -32,13 +32,12 @@ class Controller:
         # File state
         self.fileOpen = None
         self.unsavedChanges = False
-        # Undo state
-        self.history = Undo()
         # Graph
         self.graph = Graph()
         state = self.graph.addState('Start state')
         self.setPosition(state)
-
+        # Undo state
+        self.history = Undo(self, self.graph)
 
 
     def main(self):
@@ -74,10 +73,7 @@ class Controller:
         self.notifying = True
 
         # Select who to notify
-        if updateGraph:
-            listeners = self.listeners
-        else:
-            listeners = self.fileListeners
+        listeners = self.listeners if updateGraph else self.fileListeners
 
         # Notify all selected
         for function in listeners:
@@ -112,8 +108,7 @@ class Controller:
         state = self.graph.addState()
         self.selection = self.graph.numStates() - 1
         # Store undo history
-        hist = (self.selection, 'added')
-        self.history.pushHistory(hist)
+        self.history.pushHistory((self.selection, 'added'))
         # Update
         self.setPosition(state)
         self.notifyListeners()
@@ -138,12 +133,10 @@ class Controller:
         if num is 0: return
         self.unsavedChanges = True
         # Make change
-        serialized = graph.serializeState(num)
-        removed = graph.removeState(num)
+        history = graph.removeState(num)
         self.selection -= 1
         #  undo history
-        hist = (num, 'removed', serialized, removed)
-        self.history.pushHistory(hist)
+        self.history.pushHistory(history)
         # Update
         self.recalcPositions()
         self.notifyListeners()
@@ -151,14 +144,14 @@ class Controller:
     def updateStateText(self, widget):
         ''' Changes the text of the current state '''
         self.unsavedChanges = True
-        # Store undo history
-        state = self.getCurrentState()
-        hist = (self.selection, 'text', state.text)
-        self.history.pushHistory(hist)
         # Make change
+        state = self.getCurrentState()
         text = widget.get_text(widget.get_start_iter(), \
                                widget.get_end_iter())
-        state.text = text
+        old = state.setText(text)
+        # Store undo history
+        hist = (self.selection, 'text', old)
+        self.history.pushHistory(hist)
         # No re-draw needed, just 'saved' state
         self.notifyListeners(False)
 
@@ -183,13 +176,10 @@ class Controller:
     def removeTransition(self, widget, command):
         ''' Removes a transition from the selected state '''
         self.unsavedChanges = True
-        start = self.getCurrentState()
-        # Store undo history
-        to = self.graph.getIndex(start.getTransition(command))
-        hist = (self.selection, 'rmtr', command, to)
-        self.history.pushHistory(hist)
         # Make change & update
-        self.graph.removeTransition(start, command)
+        history = self.graph.removeTransition(self.selection, command)
+        # Store undo history
+        self.history.pushHistory(history)
         self.notifyListeners()
 
     def setEndingState(self, widget):
@@ -210,58 +200,18 @@ class Controller:
             self.notifyListeners()
 
     def undo(self, menu, data=None):
-        # Get the undo history
-        item = self.history.undo()
-        if item is None:
-            return
-        
-        num = item[0]
-        kind = item[1]
-        graph = self.graph
-
-        # Undo the right kind of action:
-        if kind == 'added':
-            graph.removeState(num)
-            if self.selection == num:
-                self.selection -= 1
-            self.recalcPositions()
-        elif kind == 'removed':
-            s = item[2]
-            state = State(s['state'], None, s['x'], s['y'], s['end'])
-            graph.states.insert(num, state)
-            for cmd, n in s['transitions'].iteritems():
-                state.addTransition(cmd, graph.getState(n))
-            incoming = item[3]
-            for n, cmd in incoming:
-                graph.getState(n).addTransition(cmd, state)
-        elif kind == 'text':
-            state = graph.getState(num)
-            state.text = item[2]
-        elif kind == 'addtr':
-            state = graph.getState(num)
-            command = item[2]
-            state.removeTransition(command)
-        elif kind == 'rmtr':
-            state = graph.getState(num)
-            command = item[2]
-            to = graph.getState(item[3])
-            state.addTransition(command, to)
-        elif kind == 'end':
-            state = graph.getState(num)
-            state.end = item[2]
-        elif kind == 'move':
-            state = graph.getState(num)
-            x, y = item[2]
-            state.setPosition(x, y)
-
+        # Undo the action
+        self.history.undo()
         # Update
         self.unsavedChanges = self.history.unsavedChanges()
         self.notifyListeners()
             
-
     def redo(self, menu, data=None):
-        # TODO: redo functionality
-        print menu
+        # Get the redo history
+        self.history.redo()
+        # Update
+        self.unsavedChanges = self.history.unsavedChanges()
+        self.notifyListeners()
 
     def checkGame(self, menu, data=None):
         problems = []
@@ -348,7 +298,7 @@ class Controller:
         for state in self.graph.states:
             self.setPosition(state)
         self.selection = 0
-        self.undo = Undo()
+        self.history = Undo(self, self.graph)
         self.notifyListeners()
 
     def checkClose(self, quitting=True):
