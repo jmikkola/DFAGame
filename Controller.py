@@ -224,6 +224,7 @@ class Controller:
             graph.removeState(num)
             if self.selection == num:
                 self.selection -= 1
+            self.recalcPositions()
         elif kind == 'removed':
             s = item[2]
             state = State(s['state'], None, s['x'], s['y'], s['end'])
