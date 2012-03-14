@@ -128,7 +128,7 @@ class GraphArea(gtk.DrawingArea):
                 color = red
             else:
                 color = black
-            self.draw_node(cr, xy, color)
+            self.draw_node(cr, xy, color, i)
 
     def draw_selection(self, cr, x, y):
         cr.save()
@@ -138,11 +138,19 @@ class GraphArea(gtk.DrawingArea):
         cr.restore()
 
 
-    def draw_node(self, cr, (x, y), color):
+    def draw_node(self, cr, (x, y), (r, g, b), number):
         cr.save()
-        cr.set_source_rgb(*color)
+        # Draw the circle
+        cr.set_source_rgb(r, g, b)
         cr.arc(x, y, self.radius, 0, 2 * pi)
         cr.fill()
+        # Draw the text
+        txtSize = 10
+        cr.select_font_face('Arial', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        cr.set_font_size(txtSize)
+        cr.set_source_rgb(1 - r, 1 - g, 1 - b)
+        cr.move_to(x - txtSize/2, y + txtSize/2)
+        cr.show_text(str(number))
         cr.restore()
 
     def draw_transition(self, cr, (fromX, fromY), (toX, toY)):
