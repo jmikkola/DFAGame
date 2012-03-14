@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+from Queue import Queue
 
 class State:
     ''' This class represents a single state
@@ -135,6 +136,30 @@ class Graph:
             'end': state.end,
             'transitions': transitions }
 
+    def getEndingStates(self):
+        ''' Returns a list of all ending states '''
+        return [i for i,st in enumerate(self.states) if st.end]
+
+    def getUnreachable(self):
+        ''' Returns a list of any unreachable states '''
+        # Perform a breadth-first search
+        reached = set()
+        queue = Queue()
+        start = self.states[0]
+        queue.put(start)
+        reached.add(start)
+        while not queue.empty():
+            state = queue.get()
+            for (_, st) in state.listTransitions():
+                if not st in reached:
+                    reached.add(st)
+                    queue.put(st)
+        # Note which were not reached
+        unreached = []
+        for i in xrange(self.numStates()):
+            if not self.states[i] in reached:
+                unreached.append(i)
+        return unreached
 
 def saveGraph(graph, filename):
     ''' Saves the graph to the given file name '''

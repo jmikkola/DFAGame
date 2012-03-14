@@ -264,7 +264,35 @@ class Controller:
         print menu
 
     def checkGame(self, menu, data=None):
-        print 'check game'
+        problems = []
+        warnings = []
+        g = self.graph
+
+        # Check for states with no text
+        for i in xrange(g.numStates()):
+            st = g.getState(i)
+            if not st.text.strip():
+                warnings.append('State #' + str(i) + ' has no text')
+
+        # Ensure there are ending states
+        endingStates = g.getEndingStates()
+        if not endingStates:
+            problems.append('There are no ending states.')
+
+        # Check for transitions out of ending states
+        for i in endingStates:
+            endst = g.getState(i)
+            if endst.transitions:
+                problems.append('End state #' + str(i) + ' has exiting transitions')
+
+        # Check for unreachable states
+        if g.getUnreachable():
+            problems.append('There are unreachable states.')
+        
+        # Output results
+        if not problems:
+            problems.append('No problems found.')
+        print '\n'.join(problems)
 
 
     # ----------------------------------
