@@ -222,7 +222,7 @@ class Controller:
         for i in xrange(g.numStates()):
             st = g.getState(i)
             if not st.text.strip():
-                warnings.append('State #' + str(i) + ' has no text.')
+                warnings.append('State #%d has no text.' % i)
 
         # Ensure there are ending states
         endingStates = g.getEndingStates()
@@ -233,7 +233,8 @@ class Controller:
         for i in endingStates:
             endst = g.getState(i)
             if endst.transitions:
-                problems.append('End state #' + str(i) + ' has exiting transitions.')
+                problems.append(
+                    'End state #%d has exiting transitions.' % i)
 
         # Check for unreachable states
         if g.getUnreachable():
@@ -242,14 +243,13 @@ class Controller:
         # Check for states that cannot reach an ending state
         inescapable = g.getInescapable()
         for i in inescapable:
-            problems.append('State #' + str(i) + ' cannot reach an end state.')
+            problems.append('State #%d cannot reach an end state.' % i)
         
         # Output results
-        message = str(len(problems)) + ' problems\n'
-        message += '\n'.join(problems) + '\n\n'
-        message += str(len(warnings)) + ' warnings\n'
-        message += '\n'.join(warnings)
-        showMessage(message, 'Results of checking for errors')
+        m = '%d problems\n%s\n\n%d warnings\n%s' %(
+            len(problems), '\n'.join(problems), 
+            len(warnings), '\n'.join(warnings))
+        showMessage(m, 'Results of checking for errors')
 
 
     # ----------------------------------
