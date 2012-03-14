@@ -71,6 +71,18 @@ def fileDialog(save=False, folder=None):
     return filename
 
 
+def showMessage(message, title):
+    ''' Shows a message to the user '''
+    # Build dialog
+    dialog = gtk.MessageDialog(
+        type = gtk.MESSAGE_INFO,
+        buttons = gtk.BUTTONS_OK,
+        message_format = message)
+    dialog.set_title(title)
+    # Show dialog
+    dialog.run()
+    dialog.destroy()
+
 def askYesNO(question):
     ''' Asks a yes or no question using a message dialog '''
     # Build dialog
