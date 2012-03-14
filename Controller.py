@@ -260,7 +260,11 @@ class Controller:
             
 
     def redo(self, menu, data=None):
+        # TODO: redo functionality
         print menu
+
+    def checkGame(self, menu, data=None):
+        print 'check game'
 
 
     # ----------------------------------

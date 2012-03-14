@@ -130,7 +130,7 @@ def makeMenuBar(window, ctrl):
         ('/Play/Start from _Selected', 
                            '<control><shift>P', ctrl.startGame, 1, None),
         ('/Play/Check for _Errors', 
-                           '<control>E',        None,           0, None),
+                           '<control>E',        ctrl.checkGame, 0, None),
         )
     accel_group = gtk.AccelGroup()
     item_factory = gtk.ItemFactory(gtk.MenuBar, '<main>', accel_group)
