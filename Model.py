@@ -208,7 +208,7 @@ class Graph:
 def saveGraph(graph, filename):
     ''' Saves the graph to the given file name '''
     with open(filename, 'w') as outf:
-        json.dump(graph.toSerializable(), outf)
+        json.dump(graph.toSerializable(), outf, indent=4)
 
 def loadGraph(filename):
     ''' Loads a graph from a file '''
