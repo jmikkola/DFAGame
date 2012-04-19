@@ -51,8 +51,7 @@ class GraphArea(gtk.DrawingArea):
             self.stateSelected = None
 
     def cb_button_release(self, event, data):
-        ''' Handle the end of a mouse button press on the 
-        graph area '''
+        ''' Handle the end of a mouse button press on the graph area '''
         stateNo = self.stateSelected
         if stateNo is not None:
             x, y = data.x, data.y
@@ -230,9 +229,8 @@ def get_offset_pt(x, y, vx, vy, scale):
     return (x1 + x2), (y1 + y2)
 
 def get_circle_intersection(x0, y0, r0, x1, y1, r1):
-    ''' Returns the first intersection of the circle at
-    x0, y0 with radius r0 and the circle at x1, y1 with
-    radius r1 '''
+    ''' Returns the first intersection of the circle at x0, y0 with
+    radius r0 and the circle at x1, y1 with radius r1'''
     # Formule from http://local.wasp.uwa.edu.au/~pbourke/geometry/2circle/ 
     d = hypot(x1 - x0, y1 - y0)
     a = (r0**2 - r1**2 + d**2) / (2 * d)

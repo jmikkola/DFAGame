@@ -29,13 +29,12 @@ class Undo:
         self.last_save += 1
 
     def pushRedo(self, item):
-        ''' Store the data to redo a change 
-        after an undo '''
+        ''' Store the data to redo a change after an undo '''
         self.redo_stack.append(item)
         
 
     def undo(self):
-        ''' Undo a change. Returns the stored state. '''
+        ''' Undo a change. '''
         if self.undo_stack:
             item = self.undo_stack.pop()
             self.last_save -= 1
@@ -43,7 +42,7 @@ class Undo:
             self.redo_stack.append(rev)
 
     def redo(self):
-        ''' Redo a change. Returns the stored state. '''
+        ''' Redo a change. '''
         if self.redo_stack:
             item = self.redo_stack.pop()
             self.last_save += 1
@@ -51,8 +50,8 @@ class Undo:
             self.undo_stack.append(rev)
 
     def reverse_action(self, item):
-        ''' Reverse a previous action (whether undo or redo), 
-        and returns the details to undo the change it makes ''' 
+        ''' Reverse a previous action (whether undo or redo), and
+        returns the details to undo the change it makes''' 
         num = item[0]
         kind = item[1]
         graph = self.graph
@@ -127,6 +126,4 @@ class Undo:
         return 'Undo: ' + str(self.undo_stack) + \
                '\nRedo: ' + str(self.redo_stack) + \
                '\nLast save: ' + str(self.last_save)
-
-
     

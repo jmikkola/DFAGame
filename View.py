@@ -16,8 +16,7 @@ def leftLabel(text):
     return label
 
 def iconButton(stock_id, text=None):
-    ''' Creates a button with the icon of the given 
-    stock id '''
+    ''' Creates a button with the icon of the given stock id'''
     btn = gtk.Button()
     img = gtk.Image()
     img.set_from_stock(stock_id, gtk.ICON_SIZE_MENU)
@@ -32,7 +31,6 @@ def iconButton(stock_id, text=None):
 
 def fileDialog(save=False, folder=None):
     ''' Shows a file open or save dialog '''
-
     filename = None
     if save:
         action = gtk.FILE_CHOOSER_ACTION_SAVE
@@ -97,8 +95,7 @@ def askYesNO(question):
     return (response == gtk.RESPONSE_YES)
 
 def askUnsavedChanges(quitting):
-    ''' Shows a message dialog asking about discarding
-    unsaved changes '''
+    ''' Shows a message dialog asking about discarding unsaved changes'''
     question = 'There are unsaved changed.'
     if quitting:
         close = 'Close without saving'
@@ -396,8 +393,8 @@ class BuilderWindow:
         self.window.set_title(title)
 
     def update(self):
-        ''' Updates the window in response to an 
-        update in the controller '''
+        ''' Updates the window in response to an update in the
+        controller'''
         ctrl = self.controller
         self.setTitle(ctrl.getFile(), ctrl.unsavedChanges)
 

@@ -4,8 +4,7 @@ import json
 from Queue import Queue
 
 class State:
-    ''' This class represents a single state
-    and its transitions '''
+    ''' This class represents a single state and its transitions '''
     def __init__(self, text, transitions=None, x=0, y=0, end=False):
         self.text = text
         self.transitions = transitions if transitions else dict()
@@ -23,21 +22,20 @@ class State:
         return (self.x, self.y)
 
     def setPosition(self, x, y):
-        ''' Sets the position of the state, returning the 
-        previous position '''
+        ''' Sets the position of the state, returning the previous
+        position '''
         prev = (self.x, self.y)
         self.x = x
         self.y = y
         return prev
 
     def addTransition(self, command, state):
-        ''' Adds a transition to State object in
-        state with the command text from command '''
+        ''' Adds a transition to State object in state with the
+        command text from command'''
         self.transitions[command] = state
 
     def getTransition(self, command):
-        ''' Returns the transition taken from
-        that command '''
+        ''' Returns the transition taken from that command'''
         return self.transitions[command]
 
     def listTransitions(self):
@@ -64,8 +62,8 @@ class State:
         return s + "}"
 
 class Graph:
-    ''' This class stores an entire transition graph made
-    out of State objects.'''
+    ''' This class stores an entire transition graph made out of State
+    objects.'''
     def __init__(self, serialized=None):
         if serialized:
             self._readSerialized(serialized)
@@ -100,18 +98,17 @@ class Graph:
         return self.states.index(state)
 
     def addState(self, text='', x=0, y=0):
-        ''' Adds a State object with the given text to the 
-        graph, and returns the new state object '''
+        ''' Adds a State object with the given text to the graph, and
+        returns the new state object'''
         state = State(text, None, x, y, False)
         self.states.append(state)
         return state
 
     def removeState(self, index):
-        ''' Removes a state by index from the graph.
-        Returns a history tuple of the format
-        (index, 'removed', serializedState, incoming)
-        where incoming is a list of tuples of the form
-        (fromIndex, command)
+        ''' Removes a state by index from the graph.  Returns a
+        history tuple of the format (index, 'removed',
+        serializedState, incoming) where incoming is a list of tuples
+        of the form (fromIndex, command)
         '''
         state = self.states[index]
         srlState = self.serializeState(index)
@@ -127,13 +124,13 @@ class Graph:
             
 
     def addTransition(self, start, end, command):
-        ''' Adds a transition from the start state to the
-        end state on the given command '''
+        ''' Adds a transition from the start state to the end state on
+        the given command '''
         start.addTransition(command, end)
         
     def removeTransition(self, startNo, command):
-        ''' Removes a transition starting at start with
-        the given command '''
+        ''' Removes a transition starting at start with the given
+        command'''
         start = self.getState(startNo)
         to = start.getTransition(command)
         if to:
@@ -143,8 +140,8 @@ class Graph:
         return None
 
     def toSerializable(self):
-        ''' Converts graph into a format that can be
-        serialized into JSON '''
+        ''' Converts graph into a format that can be serialized into
+        JSON'''
         return map(self.serializeState, xrange(self.numStates()))
 
     def serializeState(self, stateNo):
@@ -179,8 +176,8 @@ class Graph:
         return self.listNotIncluded(reached)
 
     def getInescapable(self):
-        ''' Returns a list of inescapable states 
-        (those from which an ending state cannot be reached) '''
+        ''' Returns a list of inescapable states (those from which an
+        ending state cannot be reached) '''
         reachEnd = set(st for st in self.states if st.end)
         updated = True
         while updated:
@@ -196,8 +193,8 @@ class Graph:
         return self.listNotIncluded(reachEnd)
 
     def listNotIncluded(self, states):
-        ''' Takes a set of states and returns a 
-        list of the indcies of states not in that set '''
+        ''' Takes a set of states and returns a list of the indcies of
+        states not in that set '''
         unreached = []
         for i in xrange(self.numStates()):
             if not self.states[i] in states:

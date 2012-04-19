@@ -57,7 +57,7 @@ class Controller:
     # ----------------------------------
 
     def registerListener(self, function, fileUpdates=False):
-        ''' Adds a listener function (which should ahve no 
+        ''' Adds a listener function (which should have no 
         arguments) to the list that will be updated. Set 
         fileUpdates to True to get updates on file state. '''
         self.listeners.add(function)
@@ -65,8 +65,9 @@ class Controller:
             self.fileListeners.add(function)
 
     def notifyListeners(self, updateGraph=True):
-        ''' Notifies the listeners that had registered. 
-        If no kinds are specified, all listeners are notified. '''
+        ''' Notifies the listeners that had registered.  Setting
+        updateGraph to False will cause only listeners registerd for
+        file state updates to be notified. '''
 
         # Don't notify recursively:
         if self.notifying: return
@@ -127,7 +128,7 @@ class Controller:
 
     def removeState(self, widget):
         ''' Removes the selected state (if it is not the 
-        state state) '''
+        start state) '''
         num = self.selection
         graph = self.graph
         if num is 0: return
@@ -303,11 +304,10 @@ class Controller:
         self.notifyListeners()
 
     def checkClose(self, quitting=True):
-        ''' Called before closing the program or file
-        to ensure no unsaved changes are lost. Returns
-        True is the close should still be performed, 
-        or False to indicate that the operation should 
-        be canceled. '''
+        ''' Called before closing the program or file to ensure no
+        unsaved changes are lost. Returns True is the close should
+        still be performed, or False to indicate that the operation
+        should be canceled.'''
         if self.unsavedChanges is False:
             return True
         answer = askUnsavedChanges(quitting)
